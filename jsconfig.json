@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "#src/*": ["src/*"],
+      "#routes/*": ["src/routes/*"],
+      "#models/*": ["src/infra/models/*"],
+      "#repositories/*": ["src/infra/repositories/*"],
+      "#providers/*": ["src/infra/providers/*"],
+      "#domain/*": ["src/domain/*"],
+      "#exceptions/*": ["src/domain/exceptions/*"],
+      "#config/*": ["src/config/*"],
+      "#middlewares/*": ["src/middlewares/*"],
+      "#infra/*": ["src/infra/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}
