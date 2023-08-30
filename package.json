@@ -1,11 +1,11 @@
 {
-  "name": "payzee-service",
+  "name": "voidr-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "engines": {
-    "node": "16.x"
+    "node": "20.x"
   },
   "imports": {
     "#config/*": "./src/config/*",
@@ -22,9 +22,10 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tunnel": "lt --port 3000 --subdomain payzee-service",
+    "tunnel": "lt --port 3000 --subdomain voidr-service",
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js --experimental-specifier-resolution=node"
+    "dev": "nodemon src/index.js --experimental-specifier-resolution=node",
+    "lint": "eslint"
   },
   "author": "",
   "license": "ISC",

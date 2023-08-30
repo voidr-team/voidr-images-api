@@ -4,7 +4,7 @@ version: '3.8'
 services:
   web:
     container_name: voidr-service
-    build: .
+    build: Dockerfile.dev
     ports:
       - "3000:3000"
     volumes:
