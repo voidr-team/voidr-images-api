@@ -5,7 +5,7 @@ FROM node:20
 WORKDIR /usr/src/app
 
 COPY src ./src
-COPY .env ./
+# COPY .env ./
 COPY package.json package-lock.json ./
 COPY .eslintrc.json .prettierignore .prettierrc jsconfig.json ./
 RUN npm install
