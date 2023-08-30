@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "engines": {
-    "node": "20.x"
+    "node": "18.x"
   },
   "imports": {
     "#config/*": "./src/config/*",
@@ -23,37 +23,36 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tunnel": "lt --port 3000 --subdomain voidr-service",
-    "start": "node src/index.js",
+    "start": "node --experimental-specifier-resolution=node src/index.js",
     "dev": "nodemon src/index.js --experimental-specifier-resolution=node",
     "lint": "eslint"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.4.0",
+    "axios": "1.4.0",
     "cors": "2.8.5",
-    "cpf-cnpj-validator": "^1.0.3",
-    "discord.js": "^14.11.0",
+    "cpf-cnpj-validator": "1.0.3",
+    "discord.js": "14.11.0",
     "dotenv": "16.3.1",
     "express": "4.18.2",
-    "express-async-errors": "^3.1.1",
-    "express-oauth2-jwt-bearer": "^1.5.0",
+    "express-async-errors": "3.1.1",
+    "express-oauth2-jwt-bearer": "1.5.0",
     "helmet": "7.0.0",
     "joi": "17.9.2",
     "mongoose": "7.3.1",
     "morgan": "1.10.0",
-    "passport": "^0.6.0",
-    "passport-http": "^0.3.0",
+    "passport": "0.6.0",
+    "passport-http": "0.3.0",
     "prettier": "2.8.8",
-    "ramda": "^0.29.0",
-    "slugify": "^1.6.6",
-    "starkbank": "^2.19.0",
-    "uniqid": "^5.4.0",
-    "yup": "^1.2.0"
+    "ramda": "0.29.0",
+    "slugify": "1.6.6",
+    "uniqid": "5.4.0",
+    "yup": "1.2.0"
   },
   "devDependencies": {
     "eslint": "8.43.0",
-    "eslint-plugin-jsdoc": "^46.4.2",
+    "eslint-plugin-jsdoc": "46.4.2",
     "eslint-watch": "8.0.0",
     "nodemon": "2.0.22"
   }
