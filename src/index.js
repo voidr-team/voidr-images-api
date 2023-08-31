@@ -34,13 +34,10 @@ app.use(express.json())
 app.use(passport.initialize())
 
 morgan.token('body', (req, res) => JSON.stringify(req.body))
+
 app.use(
   morgan(':method :url :status :response-time ms \n:body ', { immediate: true })
 )
-
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve('index.html'))
-})
 
 app.use('/v1/', routes)
 
