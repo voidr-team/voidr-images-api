@@ -1,0 +1,42 @@
+{
+  "hosting": [
+    {
+      "site": "voidr-prd",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "voidr-service",
+            "region": "southamerica-east1"
+          }
+        }
+      ]
+    },
+    {
+      "site": "wired-archery-397513",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "run": {
+            "serviceId": "voidr-service-staging",
+            "region": "southamerica-east1"
+          }
+        }
+      ]
+    }
+  ]
+}
