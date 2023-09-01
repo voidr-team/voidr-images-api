@@ -2,9 +2,13 @@ import express from 'express'
 const router = express.Router()
 
 router.get('/user/info', async (req, res) => {
-  console.log(req.auth)
+  const payload = req.auth.payload
+  const { organization, roles, sub, user } = payload
   return res.json({
-    auth: req.auth,
+    organization,
+    roles,
+    sub,
+    ...user,
   })
 })
 

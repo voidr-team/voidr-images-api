@@ -10,6 +10,7 @@ import morgan from 'morgan'
 import apiKeyValidation from './middlewares/apiKeyValidation'
 import authCheck from './middlewares/authCheck'
 import errorHandling from './middlewares/errorHandling'
+import authInjection from './middlewares/authInjection'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -39,6 +40,8 @@ app.get('/health', async (req, res) => {
 })
 
 app.use(authCheck)
+
+app.use(authInjection)
 
 app.use('/v1/', routes)
 
