@@ -3,11 +3,14 @@ import { prop } from 'ramda'
 
 const authInjection = (req, res, next) => {
   if (!req.auth?.payload) return next()
-  const organization = prop(`${config.AUDIENCE}organization`, req.auth.payload)
+  const organization = prop(
+    `${config.AUTH.AUDIENCE}organization`,
+    req.auth.payload
+  )
 
-  const roles = prop(`${config.AUDIENCE}roles`, req.auth.payload)
+  const roles = prop(`${config.AUTH.AUDIENCE}roles`, req.auth.payload)
 
-  const user = prop(`${config.AUDIENCE}user`, req.auth.payload)
+  const user = prop(`${config.AUTH.AUDIENCE}user`, req.auth.payload)
 
   req.auth.payload = {
     ...req.auth.payload,
