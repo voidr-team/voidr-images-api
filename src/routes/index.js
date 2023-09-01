@@ -3,6 +3,7 @@ import accountRoutes from './account'
 import customerRoutes from './customer'
 import paymentBatchRoutes from './payments/batch'
 import userRoutes from './user'
+import organizationRoutes from './organization'
 const router = express.Router()
 
 export default [
@@ -11,4 +12,5 @@ export default [
   accountRoutes,
   customerRoutes,
   paymentBatchRoutes,
+  organizationRoutes,
 ]
