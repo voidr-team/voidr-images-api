@@ -1,6 +1,9 @@
-import passport from 'passport'
+import { auth } from 'express-oauth2-jwt-bearer'
 
-export const basicAuthCheck = passport.authenticate('basic', {
-  session: false,
-  userProperty: 'account',
+const authCheck = auth({
+  audience: 'https://api.voidr.co/',
+  issuerBaseURL: 'https://voidr-staging.us.auth0.com/',
+  tokenSigningAlg: 'RS256',
 })
+
+export default authCheck

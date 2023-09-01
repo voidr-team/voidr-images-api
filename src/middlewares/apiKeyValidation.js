@@ -3,7 +3,7 @@ import config from '#src/config'
 const apiKeyValidation = (req, res, next) => {
   const apiKey = req.headers['api_key']
 
-  if (config.IS_LOCAL === 'local') {
+  if (config.IS_LOCAL) {
     return next()
   }
 
