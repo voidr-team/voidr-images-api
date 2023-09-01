@@ -2,11 +2,8 @@ import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import { batchPaymentSchema } from './schemas'
 
-import { basicAuthCheck } from '#src/middlewares/authCheck'
 import batchPaymentsService from '#src/domain/payments/batchPaymentsService'
 const router = express.Router()
-
-router.use(basicAuthCheck)
 
 router.post(
   '/payments/batch',

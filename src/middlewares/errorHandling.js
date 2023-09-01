@@ -21,7 +21,10 @@ const errorHandling = (err, req, res, next) => {
       .json({ error: err.error, details: err.details })
   }
 
-  console.error(err)
-  res.status(500).json({ error: 'Internal server error' })
+  if (err.status === 401) {
+    return res.status(err.status).json({ error: 'Unauthorized' })
+  }
+
+  res.status(err.status || 500).json({ error: 'Internal server error' })
 }
 export default errorHandling
