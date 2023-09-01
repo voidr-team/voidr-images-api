@@ -12,6 +12,7 @@ import HttpException from '#domain/exceptions/HttpException'
 import passport from 'passport'
 import passportHttp from 'passport-http'
 import validateBasicAuthentication from '#middlewares/validateBasicAuthentication'
+import apiKeyValidation from './middlewares/apiKeyValidation'
 const BasicStrategy = passportHttp.BasicStrategy
 
 const app = express()
@@ -38,6 +39,8 @@ morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(
   morgan(':method :url :status :response-time ms \n:body ', { immediate: true })
 )
+
+app.use(apiKeyValidation)
 
 app.use('/v1/', routes)
 
