@@ -18,15 +18,15 @@ class Auth0Management {
   }
 
   static getAccessToken = async () => {
-    const response = axios({
+    const response = await axios({
       method: 'POST',
-      url: `${config.AUTH_MANAGEMENT.DOMAIN_URL}/oauth/token`,
+      url: `${config.AUTH_MANAGEMENT.DOMAIN_URL}oauth/token`,
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       data: new URLSearchParams({
         grant_type: 'client_credentials',
         client_id: config.AUTH_MANAGEMENT.CLIENT_ID,
         client_secret: config.AUTH_MANAGEMENT.CLIENT_SECRET,
-        audience: config.AUTH.AUDIENCE,
+        audience: config.AUTH_MANAGEMENT.AUDIENCE,
       }),
     })
     const accessToken = path(['data', 'access_token'], response)

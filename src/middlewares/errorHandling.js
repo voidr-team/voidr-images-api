@@ -25,6 +25,8 @@ const errorHandling = (err, req, res, next) => {
     return res.status(err.status).json({ error: 'Unauthorized' })
   }
 
+  console.error(err)
+
   res.status(err.status || 500).json({ error: 'Internal server error' })
 }
 export default errorHandling
