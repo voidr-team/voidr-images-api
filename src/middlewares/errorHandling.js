@@ -12,7 +12,12 @@ const errorHandling = (err, req, res, next) => {
     } else {
       console.error(err)
     }
-    return res.status(500).json({ error: 'Integration server error' })
+    return res
+      .status(err?.response?.status || 500)
+      .json({
+        error: 'Integration error',
+        message: err?.response?.data?.message,
+      })
   }
 
   if (err instanceof HttpException) {

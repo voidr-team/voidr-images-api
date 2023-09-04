@@ -38,6 +38,11 @@ class Auth0Management {
     return this.api.get(`/api/v2/organizations/${orgId}/members`)
   }
 
+  /** @param {string} orgId */
+  getInvitations = async (orgId) => {
+    return this.api.get(`/api/v2/organizations/${orgId}/invitations`)
+  }
+
   /**
    * @param {string} orgId
    * @param {{inviterName: string, inviteeEmail: string, roles: string[], inviteeName: string, }} invite
@@ -82,6 +87,36 @@ class Auth0Management {
     })
   }
 
+  /**
+   * @param {string} orgId
+   * @param {string} sub
+   * @param {string[]} roles
+   */
+  addRolesInMember = async (orgId, sub, roles) => {
+    return this.api.post(
+      `/api/v2/organizations/${orgId}/members/${sub}/roles`,
+      {
+        roles: roles,
+      }
+    )
+  }
+
+  /**
+   * @param {string} orgId
+   * @param {string} sub
+   * @param {string[]} roles
+   */
+  removeOrganizationMemberRoles = async (orgId, sub, roles) => {
+    return this.api.delete(
+      `/api/v2/organizations/${orgId}/members/${sub}/roles`,
+      {
+        data: {
+          roles: roles,
+        },
+      }
+    )
+  }
+
   /** @param {string} orgId */
   getOrganizationMembersWithRoles = async (orgId) => {
     const { data: members } = await this.getOrganizationMembers(orgId)
@@ -94,6 +129,10 @@ class Auth0Management {
         return { ...member, roles: roles ?? [] }
       })
     )
+  }
+
+  getRoles = async () => {
+    return this.api.get(`/api/v2/roles`)
   }
 
   /**
