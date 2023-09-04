@@ -10,7 +10,7 @@ router.get('/organization/members', async (req, res) => {
   const accessToken = await Auth0Management.getAccessToken()
   const auth0Management = new Auth0Management(accessToken)
   const members = await auth0Management.getOrganizationMembersWithRoles(orgId)
-  return res.json(members.data)
+  return res.json(members)
 })
 
 router.get('/organization/invites', async (req, res) => {
