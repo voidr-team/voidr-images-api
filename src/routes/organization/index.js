@@ -1,24 +1,34 @@
 import HttpException from '#src/domain/exceptions/HttpException'
-import Auth0Management from '#src/infra/providers/Auth0Managment'
 import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import inviteSchema from './schema'
+import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 const router = express.Router()
 
 router.get('/organization/members', async (req, res) => {
   const orgId = req.auth.payload.org_id
-  const accessToken = await Auth0Management.getAccessToken()
-  const auth0Management = new Auth0Management(accessToken)
+  const auth0Management = await auth0ManagementFactory()
   const members = await auth0Management.getOrganizationMembersWithRoles(orgId)
   return res.json(members)
 })
 
 router.get('/organization/invites', async (req, res) => {
   const orgId = req.auth.payload.org_id
-  const accessToken = await Auth0Management.getAccessToken()
-  const auth0Management = new Auth0Management(accessToken)
+  const auth0Management = await auth0ManagementFactory()
   const invitations = await auth0Management.getInvitations(orgId)
-  return res.json(invitations.data)
+  const toCamelCase = (invite) => ({
+    ...invite,
+    connectionId: invite.connection_id,
+    clientId: invite.client_id,
+    invitationUrl: invite.invitation_url,
+    ticketId: invite.ticket_id,
+    createdAt: invite.created_at,
+    expiresAt: invite.expires_at,
+    organizationId: invite.organization_id,
+  })
+  const mappedInvitations = invitations.map(toCamelCase)
+
+  return res.json(mappedInvitations)
 })
 
 router.post(
@@ -28,9 +38,7 @@ router.post(
     const { user, org_id } = req.auth.payload
     const { email, roles, name } = req.body
 
-    const accessToken = await Auth0Management.getAccessToken()
-
-    const auth0Management = new Auth0Management(accessToken)
+    const auth0Management = await auth0ManagementFactory()
 
     await auth0Management.createInvite(org_id, {
       inviterName: user.name,
@@ -49,15 +57,13 @@ router.delete('/organization/members/:sub', async (req, res) => {
     throw HttpException(422, 'Missing member sub param')
   }
   const orgId = req.auth.payload.org_id
-  const accessToken = await Auth0Management.getAccessToken()
-  const auth0Management = new Auth0Management(accessToken)
+  const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMembers(orgId, [sub])
   return res.json({ modified: true })
 })
 
 router.get('/organization/roles', async (req, res) => {
-  const accessToken = await Auth0Management.getAccessToken()
-  const auth0Management = new Auth0Management(accessToken)
+  const auth0Management = await auth0ManagementFactory()
   const roles = await auth0Management.getRoles()
   return res.json(roles.data)
 })
@@ -75,8 +81,7 @@ router.post('/organization/members/:sub/roles', async (req, res) => {
   }
 
   const orgId = req.auth.payload.org_id
-  const accessToken = await Auth0Management.getAccessToken()
-  const auth0Management = new Auth0Management(accessToken)
+  const auth0Management = await auth0ManagementFactory()
 
   await auth0Management.addRolesInMember(orgId, sub, roles)
   return res.send({ modified: true })
@@ -94,8 +99,7 @@ router.delete('/organization/members/:sub/role', async (req, res) => {
   }
 
   const orgId = req.auth.payload.org_id
-  const accessToken = await Auth0Management.getAccessToken()
-  const auth0Management = new Auth0Management(accessToken)
+  const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMemberRoles(orgId, sub, [
     req.body.role,
   ])
