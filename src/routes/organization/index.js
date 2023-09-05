@@ -26,7 +26,7 @@ router.get('/organization/invites', async (req, res) => {
     expiresAt: invite.expires_at,
     organizationId: invite.organization_id,
   })
-  const mappedInvitations = invitations.map(toCamelCase)
+  const mappedInvitations = invitations.data.map(toCamelCase)
 
   return res.json(mappedInvitations)
 })

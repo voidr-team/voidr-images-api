@@ -158,12 +158,13 @@ class Auth0Management {
     return this.api.get(`/api/v2/organizations/${orgId}`)
   }
 
-  /** @param {{page: number?, take: number?}} query */
-  getOrganizations = async ({ page, take = 100 }) => {
+  /** @param {{page: number?, take: number?, from: string?}} query */
+  getOrganizations = async ({ page, take = 100, from }) => {
     return this.api.get('/api/v2/organizations', {
       params: {
         page,
         take,
+        from,
         include_totals: true,
       },
     })
@@ -171,7 +172,10 @@ class Auth0Management {
 
   /** @param {string} name  */
   getOrganizationByName = async (name) => {
-    return this.api.get(`/api/v2/organizations/name/${name}`)
+    return this.api.get(`/api/v2/organizations/name/${name}`).catch((err) => {
+      if (err.response.status === 404) return null
+      else throw err
+    })
   }
 }
 
