@@ -12,6 +12,13 @@ const authInjection = (req, res, next) => {
 
   const user = prop(`${config.AUTH.AUDIENCE}user`, req.auth.payload)
 
+  const issuer = {
+    organizationId: organization.id,
+    sub: req.auth.payload.sub,
+  }
+
+  req.issuer = issuer
+
   req.auth.payload = {
     ...req.auth.payload,
     organization,

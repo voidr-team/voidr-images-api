@@ -4,6 +4,7 @@ import customerRoutes from './customer'
 import paymentBatchRoutes from './payments/batch'
 import userRoutes from './user'
 import organizationRoutes from './organization'
+import vendorRoutes from './vendors'
 const router = express.Router()
 
 export default [
@@ -13,4 +14,5 @@ export default [
   customerRoutes,
   paymentBatchRoutes,
   organizationRoutes,
+  vendorRoutes,
 ]

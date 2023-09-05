@@ -1,3 +1,4 @@
+import { vendorConfig } from '#src/infra/models/Vendor/vendorConfig'
 import yup from 'yup'
 
 export const createVendorSchema = yup.object().shape({
@@ -18,4 +19,8 @@ export const createVendorSchema = yup.object().shape({
     )
     .required(),
   organizationId: yup.string().optional(),
+})
+
+export const patchStatusVendorSchema = yup.object().shape({
+  status: yup.string().oneOf(Object.values(vendorConfig.status)).required(),
 })

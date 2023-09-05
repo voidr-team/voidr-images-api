@@ -1,18 +1,17 @@
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
-import { toLower } from 'ramda'
+import { prop, toLower } from 'ramda'
 
-/** @param {string} name */
-const searchOrganization = async (name) => {
-  const lowerCaseName = toLower(name)
-  const auth0Management = await auth0ManagementFactory()
+const searchByName = async ({ lowerCaseName, auth0Management }) => {
   const organizationByNameResponse =
-    await auth0Management.getOrganizationByName(name)
+    await auth0Management.getOrganizationByName(lowerCaseName)
   const organizationByName = organizationByNameResponse?.data
 
   if (organizationByName) {
     return organizationByName
   }
+}
 
+const searchInList = async ({ lowerCaseName, auth0Management }) => {
   const searchInEntireList = async (from = null) => {
     const organizationsList = await auth0Management.getOrganizations({
       from,
@@ -23,7 +22,9 @@ const searchOrganization = async (name) => {
     const organizationFound = organizations.find(({ name, display_name }) => {
       const orgName = toLower(name)
       const displayName = toLower(display_name)
-      return orgName === lowerCaseName || displayName === lowerCaseName
+      return (
+        orgName.includes(lowerCaseName) || displayName.includes(lowerCaseName)
+      )
     })
 
     if (organizationFound) return organizationFound
@@ -36,6 +37,18 @@ const searchOrganization = async (name) => {
   }
 
   return await searchInEntireList()
+}
+
+/** @param {string} name */
+const searchOrganization = async (name) => {
+  const lowerCaseName = toLower(name)
+  const auth0Management = await auth0ManagementFactory()
+
+  let organization = await searchByName({ lowerCaseName, auth0Management })
+  if (!organization) {
+    organization = await searchInList({ lowerCaseName, auth0Management })
+  }
+  return organization
 }
 
 const organizationService = {

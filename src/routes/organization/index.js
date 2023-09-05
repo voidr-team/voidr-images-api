@@ -3,24 +3,31 @@ import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import { inviteSchema } from './schema'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
-import organizationService from '#src/domain/organization'
+import organizationService from '#src/domain/organization/service'
 const router = express.Router()
 
 router.get('/organization/members', async (req, res) => {
-  const orgId = req.auth.payload.org_id
+  const orgId = req.issuer.organizationId
+
   const auth0Management = await auth0ManagementFactory()
+
   const members = await auth0Management.getOrganizationMembersWithRoles(orgId)
+
   const mappedMembers = members.map(({ user_id, ...member }) => ({
     sub: user_id,
     ...member,
   }))
+
   return res.json(mappedMembers)
 })
 
 router.get('/organization/invites', async (req, res) => {
-  const orgId = req.auth.payload.org_id
+  const orgId = req.issuer.organizationId
+
   const auth0Management = await auth0ManagementFactory()
+
   const invitations = await auth0Management.getInvitations(orgId)
+
   const toCamelCase = (invite) => ({
     ...invite,
     connectionId: invite.connection_id,
@@ -57,7 +64,7 @@ router.post(
 )
 
 router.delete('/organization/invites/:inviteId', async (req, res) => {
-  const orgId = req.auth.payload.org_id
+  const orgId = req.issuer.organizationId
   const inviteId = req.params.inviteId
 
   if (!inviteId) {
@@ -76,7 +83,7 @@ router.delete('/organization/members/:sub', async (req, res) => {
   if (!req.params.sub) {
     throw HttpException(422, 'Missing member sub param')
   }
-  const orgId = req.auth.payload.org_id
+  const orgId = req.issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMembers(orgId, [sub])
   return res.json({ modified: true })
@@ -100,7 +107,7 @@ router.post('/organization/members/:sub/roles', async (req, res) => {
     throw HttpException(422, 'Missing role in body')
   }
 
-  const orgId = req.auth.payload.org_id
+  const orgId = req.issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
 
   await auth0Management.addRolesInMember(orgId, sub, roles)
@@ -118,7 +125,7 @@ router.delete('/organization/members/:sub/role', async (req, res) => {
     throw HttpException(422, 'Missing role in body')
   }
 
-  const orgId = req.auth.payload.org_id
+  const orgId = req.issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMemberRoles(orgId, sub, [
     req.body.role,
@@ -129,17 +136,29 @@ router.delete('/organization/members/:sub/role', async (req, res) => {
 
 router.get('/organization-by-name', async (req, res) => {
   const name = req.query.name
-  if (!name) {
-    throw new HttpException(422, 'Missing query "name"')
-  }
+  if (!name) throw new HttpException(422, 'Missing query "name"')
+
+  if (name.length < 4)
+    throw new HttpException(
+      422,
+      'Query "name" should have at least 4 characters'
+    )
 
   const organization = await organizationService.searchOrganization(name)
 
-  if (!organization) {
-    throw new HttpException(404, 'Organization not found')
-  }
+  if (!organization) throw new HttpException(404, 'Organization not found')
 
-  return res.json(organization)
+  const { display_name, branding, ...rest } = organization
+  const { logo_url, ...brand } = branding || {}
+
+  return res.json({
+    ...rest,
+    displayName: display_name,
+    branding: {
+      ...brand,
+      logoUrl: logo_url,
+    },
+  })
 })
 
 export default router
