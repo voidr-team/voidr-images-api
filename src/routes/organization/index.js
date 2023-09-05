@@ -3,13 +3,18 @@ import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import { inviteSchema } from './schema'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
+import organizationService from '#src/domain/organization'
 const router = express.Router()
 
 router.get('/organization/members', async (req, res) => {
   const orgId = req.auth.payload.org_id
   const auth0Management = await auth0ManagementFactory()
   const members = await auth0Management.getOrganizationMembersWithRoles(orgId)
-  return res.json(members)
+  const mappedMembers = members.map(({ user_id, ...member }) => ({
+    sub: user_id,
+    ...member,
+  }))
+  return res.json(mappedMembers)
 })
 
 router.get('/organization/invites', async (req, res) => {
@@ -32,7 +37,7 @@ router.get('/organization/invites', async (req, res) => {
 })
 
 router.post(
-  '/organization/invite',
+  '/organization/invites',
   validateSchema(inviteSchema),
   async (req, res) => {
     const { user, org_id } = req.auth.payload
@@ -51,7 +56,7 @@ router.post(
   }
 )
 
-router.delete('/organization/invite/:inviteId', async (req, res) => {
+router.delete('/organization/invites/:inviteId', async (req, res) => {
   const orgId = req.auth.payload.org_id
   const inviteId = req.params.inviteId
 
@@ -120,6 +125,17 @@ router.delete('/organization/members/:sub/role', async (req, res) => {
   ])
 
   return res.json({ modified: true })
+})
+
+router.get('/organization', async (req, res) => {
+  const name = req.query.name
+  if (!name) {
+    throw new HttpException(422, 'Missing query "name"')
+  }
+
+  const organization = await organizationService.searchOrganization(name)
+
+  return organization
 })
 
 export default router

@@ -1,6 +1,7 @@
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 import { toLower } from 'ramda'
 
+/** @param {string} name */
 const searchOrganization = async (name) => {
   const lowerCaseName = toLower(name)
   const auth0Management = await auth0ManagementFactory()
@@ -34,6 +35,7 @@ const searchOrganization = async (name) => {
   return await searchInEntireList()
 }
 
-export default {
+const organizationService = {
   searchOrganization,
 }
+export default organizationService
