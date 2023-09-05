@@ -5,7 +5,10 @@ import { toLower } from 'ramda'
 const searchOrganization = async (name) => {
   const lowerCaseName = toLower(name)
   const auth0Management = await auth0ManagementFactory()
-  const organizationByName = await auth0Management.getOrganizationByName(name)
+  const organizationByNameResponse =
+    await auth0Management.getOrganizationByName(name)
+  const organizationByName = organizationByNameResponse?.data
+
   if (organizationByName) {
     return organizationByName
   }
@@ -15,7 +18,7 @@ const searchOrganization = async (name) => {
       from,
     })
 
-    const { organizations, next } = organizationsList
+    const { organizations = [], next = null } = organizationsList?.data || {}
 
     const organizationFound = organizations.find(({ name, display_name }) => {
       const orgName = toLower(name)

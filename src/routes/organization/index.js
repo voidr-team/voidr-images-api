@@ -127,7 +127,7 @@ router.delete('/organization/members/:sub/role', async (req, res) => {
   return res.json({ modified: true })
 })
 
-router.get('/organization', async (req, res) => {
+router.get('/organization-by-name', async (req, res) => {
   const name = req.query.name
   if (!name) {
     throw new HttpException(422, 'Missing query "name"')
@@ -135,7 +135,11 @@ router.get('/organization', async (req, res) => {
 
   const organization = await organizationService.searchOrganization(name)
 
-  return organization
+  if (!organization) {
+    throw new HttpException(404, 'Organization not found')
+  }
+
+  return res.json(organization)
 })
 
 export default router
