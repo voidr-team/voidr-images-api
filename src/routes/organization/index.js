@@ -1,7 +1,7 @@
 import HttpException from '#src/domain/exceptions/HttpException'
 import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
-import inviteSchema from './schema'
+import { inviteSchema } from './schema'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 const router = express.Router()
 
@@ -50,6 +50,21 @@ router.post(
     return res.json({ modified: true })
   }
 )
+
+router.delete('/organization/invite/:inviteId', async (req, res) => {
+  const orgId = req.auth.payload.org_id
+  const inviteId = req.params.inviteId
+
+  if (!inviteId) {
+    throw new HttpException(422, 'Missing inviteId param')
+  }
+
+  const auth0Management = await auth0ManagementFactory()
+
+  await auth0Management.deleteInvite(orgId, inviteId)
+
+  return res.json({ modified: true })
+})
 
 router.delete('/organization/members/:sub', async (req, res) => {
   const sub = req.params.sub

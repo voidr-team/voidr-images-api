@@ -77,6 +77,16 @@ class Auth0Management {
 
   /**
    * @param {string} orgId
+   * @param {string} inviteId
+   */
+  deleteInvite = async (orgId, inviteId) => {
+    return this.api.delete(
+      `/api/v2/organizations/${orgId}/invitations/${inviteId}`
+    )
+  }
+
+  /**
+   * @param {string} orgId
    * @param {string[]} subs
    */
   removeOrganizationMembers = async (orgId, subs) => {
@@ -146,6 +156,22 @@ class Auth0Management {
   /** @param {string} orgId */
   getOrganizationById = async (orgId) => {
     return this.api.get(`/api/v2/organizations/${orgId}`)
+  }
+
+  /** @param {{page: number?, take: number?}} query */
+  getOrganizations = async ({ page, take = 100 }) => {
+    return this.api.get('/api/v2/organizations', {
+      params: {
+        page,
+        take,
+        include_totals: true,
+      },
+    })
+  }
+
+  /** @param {string} name  */
+  getOrganizationByName = async (name) => {
+    return this.api.get(`/api/v2/organizations/name/${name}`)
   }
 }
 
