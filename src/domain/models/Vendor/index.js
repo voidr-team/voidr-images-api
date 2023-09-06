@@ -27,20 +27,14 @@ export const vendorSchema = {
     required: true,
   },
   contacts: {
-    type: [
-      {
-        name: {
-          type: String,
-          required: true,
-        },
-        email: {
-          type: String,
-          required: true,
-        },
-        _id: false,
-      },
-    ],
-    required: true,
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
   },
   organizationId: {
     type: String,

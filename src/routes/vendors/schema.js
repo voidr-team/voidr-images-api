@@ -9,14 +9,12 @@ export const createVendorSchema = yup.object().shape({
     value: yup.number().positive().required(),
   }),
   interestTeam: yup.string().required(),
-  contacts: yup
-    .array()
-    .of(
-      yup.object().shape({
-        name: yup.string().required(),
-        email: yup.string().email().required(),
-      })
-    )
+  contact: yup
+    .object()
+    .shape({
+      name: yup.string().required(),
+      email: yup.string().email().required(),
+    })
     .required(),
   organizationId: yup.string().optional(),
 })
