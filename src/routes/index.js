@@ -1,7 +1,7 @@
 import express from 'express'
 import accountRoutes from './account'
 import customerRoutes from './customer'
-import paymentBatchRoutes from './payments/batch'
+// import paymentBatchRoutes from './payments/batch'
 import userRoutes from './user'
 import organizationRoutes from './organization'
 import vendorRoutes from './vendors'
@@ -12,7 +12,7 @@ export default [
   userRoutes,
   accountRoutes,
   customerRoutes,
-  paymentBatchRoutes,
+  // paymentBatchRoutes,
   organizationRoutes,
   vendorRoutes,
 ]

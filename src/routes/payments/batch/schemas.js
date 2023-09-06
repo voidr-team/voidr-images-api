@@ -1,4 +1,4 @@
-import { paymentConfig } from '#src/infra/models/Payment/paymentConfig'
+import { paymentConfig } from '#models/Payment/paymentConfig'
 import { yupCpfCnpjValidator } from '#src/utils/yupValidators'
 import yup from 'yup'
 

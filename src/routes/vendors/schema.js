@@ -1,4 +1,4 @@
-import { vendorConfig } from '#src/infra/models/Vendor/vendorConfig'
+import { vendorConfig } from '#models/Vendor/vendorConfig'
 import yup from 'yup'
 
 export const createVendorSchema = yup.object().shape({

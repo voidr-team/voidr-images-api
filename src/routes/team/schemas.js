@@ -1,4 +1,4 @@
-import { teamConfig } from '#src/infra/models/Team/teamConfig'
+import { teamConfig } from '#models/Team/teamConfig'
 import * as yup from 'yup'
 
 export const teamSchema = yup.object().shape({

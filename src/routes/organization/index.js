@@ -3,7 +3,7 @@ import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import { inviteSchema } from './schema'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
-import organizationService from '#src/domain/organization/service'
+import organizationService from '#src/domain/services/organization'
 const router = express.Router()
 
 router.get('/organization/members', async (req, res) => {

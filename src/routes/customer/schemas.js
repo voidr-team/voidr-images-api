@@ -1,4 +1,4 @@
-import { customerConfig } from '#src/infra/models/Customer/customerConfig'
+import { customerConfig } from '#models/Customer/customerConfig'
 import yup from 'yup'
 import { cnpj } from 'cpf-cnpj-validator'
 

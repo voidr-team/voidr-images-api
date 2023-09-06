@@ -4,7 +4,7 @@
     "paths": {
       "#src/*": ["src/*"],
       "#routes/*": ["src/routes/*"],
-      "#models/*": ["src/infra/models/*"],
+      "#models/*": ["src/domain/models/*"],
       "#repositories/*": ["src/infra/repositories/*"],
       "#providers/*": ["src/infra/providers/*"],
       "#domain/*": ["src/domain/*"],

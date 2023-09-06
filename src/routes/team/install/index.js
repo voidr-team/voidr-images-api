@@ -2,7 +2,7 @@ import express from 'express'
 import { Team } from '#models/Team'
 import HttpException from './utils/HttpException'
 import providerInstallService from '#domain/providerInstallService'
-import { teamConfig } from '#src/infra/models/Team/teamConfig'
+import { teamConfig } from '#models/Team/teamConfig'
 
 const router = express.Router()
 

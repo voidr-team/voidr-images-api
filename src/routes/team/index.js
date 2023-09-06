@@ -1,6 +1,6 @@
 import express from 'express'
 import { teamSchema } from './schemas'
-import { Team } from '#src/infra/models/Team'
+import { Team } from '#models/Team'
 import validateSchema from '#src/middlewares/validateSchema'
 import verifyTeamAccess from '#src/middlewares/verifyTeamAccess'
 const router = express.Router()

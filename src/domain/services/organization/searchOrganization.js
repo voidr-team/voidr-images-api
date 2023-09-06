@@ -51,7 +51,4 @@ const searchOrganization = async (name) => {
   return organization
 }
 
-const organizationService = {
-  searchOrganization,
-}
-export default organizationService
+export default searchOrganization
