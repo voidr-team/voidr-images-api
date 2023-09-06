@@ -1,15 +1,21 @@
-import { vendorSchema } from '#src/domain/models/Vendor'
+import HttpException from '#src/domain/exceptions/HttpException'
+import { VendorSchema } from '#src/domain/models/Vendor'
 import vendorRepository from '#src/infra/repositories/vendor'
 import organizationService from '../organization'
 
 /**
  * @param {Issuer} issuer
- * @param {vendorSchema} vendorData
+ * @param {VendorSchema} vendorData
  */
 const createVendor = async (issuer, vendorData) => {
-  const vendor = await vendorRepository.create(issuer, vendorData)
-
-  if (vendor.organizationId) {
+  if (issuer.organizationId === vendorData.organizationId) {
+    throw new HttpException(
+      422,
+      'Organization id is equals to users organization id'
+    )
+  }
+  if (vendorData.organizationId) {
+    const vendor = await vendorRepository.create(issuer, vendorData)
     return vendor
   }
 
@@ -23,14 +29,23 @@ const createVendor = async (issuer, vendorData) => {
   let vendorOrganizationId = existedOrganization?.id
 
   if (!vendorOrganizationId) {
-    const auth0Org = await organizationService.createOrganization()
+    const auth0Org = await organizationService.createOrganization({
+      name: vendorData.name,
+    })
     vendorOrganizationId = auth0Org.id
   }
 
-  const vendorWithOrgId = await vendorRepository.updateOrganizationId(
-    vendor._id,
-    vendorOrganizationId
-  )
+  if (vendorOrganizationId === issuer.organizationId) {
+    throw new HttpException(
+      422,
+      'Organization id is equals to users organization id'
+    )
+  }
+
+  const vendorWithOrgId = await vendorRepository.create(issuer, {
+    ...vendorData,
+    organizationId: vendorOrganizationId,
+  })
 
   return vendorWithOrgId
 }

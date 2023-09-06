@@ -1,4 +1,4 @@
-import { Vendor, vendorSchema } from '#models/Vendor'
+import { Vendor, VendorSchema } from '#models/Vendor'
 
 /**
  * @param {Issuer} issuer
@@ -20,7 +20,7 @@ const updateStatus = async (issuer, vendorId, newStatus) => {
 
 /**
  * @param {Issuer} issuer
- * @param {vendorSchema} raw
+ * @param {VendorSchema} raw
  */
 const create = async (issuer, raw) => {
   const newVendor = new Vendor({
@@ -41,25 +41,9 @@ const list = async (issuer) => {
   return vendors
 }
 
-/**
- * @param {string} id
- * @param {string} newOrganizationId
- */
-const updateOrganizationId = async (id, newOrganizationId) => {
-  const vendor = await Vendor.findByIdAndUpdate(
-    id,
-    {
-      organizationId: newOrganizationId,
-    },
-    { new: true }
-  ).exec()
-  return vendor.toObject()
-}
-
 const vendorRepository = {
   updateStatus,
   create,
   list,
-  updateOrganizationId,
 }
 export default vendorRepository
