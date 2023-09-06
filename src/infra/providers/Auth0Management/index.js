@@ -1,4 +1,5 @@
 import config from '#src/config'
+import slug from '#src/utils/transform/slug'
 import axios from 'axios'
 import { path } from 'ramda'
 
@@ -172,9 +173,35 @@ class Auth0Management {
 
   /** @param {string} name  */
   getOrganizationByName = async (name) => {
-    return this.api.get(`/api/v2/organizations/name/${name}`).catch((err) => {
-      if (err.response.status === 404) return null
-      else throw err
+    return this.api
+      .get(`/api/v2/organizations/name/${slug(name)}`)
+      .catch((err) => {
+        if (err.response.status === 404) return null
+        else throw err
+      })
+  }
+
+  getConnections = async () => {
+    return this.api.get('/api/v2/connections')
+  }
+
+  /**
+   * @param {{name: string, display_name: string, branding: any, metadata: any}} payload
+   */
+  createOrganization = async ({ name, display_name, branding, metadata }) => {
+    const connectionsResponse = await this.getConnections()
+
+    const enabledConnections = connectionsResponse?.data?.map((connection) => ({
+      connection_id: connection.id,
+      assign_membership_on_login: false,
+    }))
+
+    return this.api.post('/api/v2/organizations', {
+      name,
+      display_name,
+      branding,
+      metadata,
+      enabled_connections: enabledConnections,
     })
   }
 }

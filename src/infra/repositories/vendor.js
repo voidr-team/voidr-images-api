@@ -6,7 +6,7 @@ import { Vendor, vendorSchema } from '#models/Vendor'
  * @param {string} newStatus
  */
 const updateStatus = async (issuer, vendorId, newStatus) => {
-  return await Vendor.findOneAndUpdate(
+  const vendor = await Vendor.findOneAndUpdate(
     {
       'createdBy.organizationId': issuer.organizationId,
       _id: vendorId,
@@ -14,6 +14,8 @@ const updateStatus = async (issuer, vendorId, newStatus) => {
     { status: newStatus },
     { new: true }
   ).exec()
+
+  return vendor.toObject()
 }
 
 /**
@@ -28,15 +30,36 @@ const create = async (issuer, raw) => {
       sub: issuer.sub,
     },
   })
-  return await newVendor.save()
+  return (await newVendor.save()).toObject()
 }
 
 /** @param {Issuer} issuer */
 const list = async (issuer) => {
-  return await Vendor.find({
+  const vendors = await Vendor.find({
     'createdBy.organizationId': issuer.organizationId,
   }).exec()
+  return vendors
 }
 
-const vendorRepository = { updateStatus, create, list }
+/**
+ * @param {string} id
+ * @param {string} newOrganizationId
+ */
+const updateOrganizationId = async (id, newOrganizationId) => {
+  const vendor = await Vendor.findByIdAndUpdate(
+    id,
+    {
+      organizationId: newOrganizationId,
+    },
+    { new: true }
+  ).exec()
+  return vendor.toObject()
+}
+
+const vendorRepository = {
+  updateStatus,
+  create,
+  list,
+  updateOrganizationId,
+}
 export default vendorRepository

@@ -2,6 +2,7 @@ import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import { createVendorSchema, patchStatusVendorSchema } from './schema'
 import vendorRepository from '#src/infra/repositories/vendor'
+import vendorService from '#src/domain/services/vendor'
 const router = express.Router()
 
 router.post(
@@ -11,7 +12,7 @@ router.post(
     const issuer = req.issuer
     const body = req.body
 
-    const createdVendor = await vendorRepository.create(issuer, {
+    const createdVendor = await vendorService.createVendor(issuer, {
       name: body.name,
       website: body.website,
       contract: body.contract,

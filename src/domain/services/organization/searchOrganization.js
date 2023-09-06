@@ -1,5 +1,5 @@
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
-import { prop, toLower } from 'ramda'
+import { toLower } from 'ramda'
 
 const searchByName = async ({ lowerCaseName, auth0Management }) => {
   const organizationByNameResponse =
@@ -9,6 +9,8 @@ const searchByName = async ({ lowerCaseName, auth0Management }) => {
   if (organizationByName) {
     return organizationByName
   }
+
+  return null
 }
 
 const searchInList = async ({ lowerCaseName, auth0Management }) => {
@@ -39,13 +41,16 @@ const searchInList = async ({ lowerCaseName, auth0Management }) => {
   return await searchInEntireList()
 }
 
-/** @param {string} name */
-const searchOrganization = async (name) => {
+/**
+ * @param {string} name
+ * @param {{exactMatch: boolean}} options
+ */
+const searchOrganization = async (name, options = { exactMatch: false }) => {
   const lowerCaseName = toLower(name)
   const auth0Management = await auth0ManagementFactory()
 
   let organization = await searchByName({ lowerCaseName, auth0Management })
-  if (!organization) {
+  if (!organization && !options.exactMatch) {
     organization = await searchInList({ lowerCaseName, auth0Management })
   }
   return organization
