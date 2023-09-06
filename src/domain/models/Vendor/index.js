@@ -26,7 +26,7 @@ export const vendorSchema = {
     type: String,
     required: true,
   },
-  contacts: {
+  contact: {
     name: {
       type: String,
       required: true,

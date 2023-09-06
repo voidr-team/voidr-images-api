@@ -16,7 +16,7 @@ router.post(
       name: body.name,
       website: body.website,
       contract: body.contract,
-      contacts: body.contacts,
+      contact: body.contact,
       categories: body.categories,
       interestTeam: body.interestTeam,
       organizationId: body.organizationId,
