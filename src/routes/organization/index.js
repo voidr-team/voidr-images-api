@@ -114,7 +114,32 @@ router.post('/organization/members/:sub/roles', async (req, res) => {
   return res.send({ modified: true })
 })
 
-router.delete('/organization/members/:sub/role', async (req, res) => {
+router.put('/organization/members/:sub/roles', async (req, res) => {
+  const sub = req.params.sub
+
+  if (!req.params.sub) {
+    throw HttpException(422, 'Missing member sub param')
+  }
+
+  if (!req.body.role) {
+    throw HttpException(422, 'Missing role in body')
+  }
+
+  const orgId = req.issuer.organizationId
+  const auth0Management = await auth0ManagementFactory()
+
+  const rolesResponse = auth0Management.getRoles()
+
+  const roles = rolesResponse?.data?.map((role) => role.id)
+
+  await auth0Management.removeOrganizationMemberRoles(orgId, sub, roles)
+
+  await auth0Management.addRolesInMember(orgId, sub, roles)
+
+  return res.json({ modified: true })
+})
+
+router.delete('/organization/members/:sub/roles', async (req, res) => {
   const sub = req.params.sub
 
   if (!req.params.sub) {
