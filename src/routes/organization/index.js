@@ -118,17 +118,17 @@ router.put('/organization/members/:sub/roles', async (req, res) => {
   const sub = req.params.sub
 
   if (!req.params.sub) {
-    throw HttpException(422, 'Missing member sub param')
+    throw new HttpException(422, 'Missing member sub param')
   }
 
   if (!req.body.role) {
-    throw HttpException(422, 'Missing role in body')
+    throw new HttpException(422, 'Missing role in body')
   }
 
   const orgId = req.issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
 
-  const rolesResponse = auth0Management.getRoles()
+  const rolesResponse = await auth0Management.getRoles()
 
   const roles = rolesResponse?.data?.map((role) => role.id)
 
