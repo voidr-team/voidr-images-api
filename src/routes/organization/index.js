@@ -125,6 +125,8 @@ router.put('/organization/members/:sub/roles', async (req, res) => {
     throw new HttpException(422, 'Missing role in body')
   }
 
+  const roleBody = req.body.role
+
   const orgId = req.issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
 
@@ -134,7 +136,7 @@ router.put('/organization/members/:sub/roles', async (req, res) => {
 
   await auth0Management.removeOrganizationMemberRoles(orgId, sub, roles)
 
-  await auth0Management.addRolesInMember(orgId, sub, roles)
+  await auth0Management.addRolesInMember(orgId, sub, roleBody)
 
   return res.json({ modified: true })
 })
