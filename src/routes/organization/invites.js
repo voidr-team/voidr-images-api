@@ -26,7 +26,9 @@ router.post(
 )
 
 router.delete('/organization/invites/:inviteId', async (req, res) => {
-  const orgId = req.issuer.organizationId
+  /** @type {Issuer}  */
+  const issuer = req.issuer
+  const orgId = issuer.organizationId
   const inviteId = req.params.inviteId
 
   if (!inviteId) {

@@ -9,6 +9,7 @@ router.post(
   '/vendors',
   validateSchema(createVendorSchema),
   async (req, res) => {
+    /** @type {Issuer}  */
     const issuer = req.issuer
     const body = req.body
 
@@ -30,6 +31,7 @@ router.patch(
   '/vendors/:vendorId/status',
   validateSchema(patchStatusVendorSchema),
   async (req, res) => {
+    /** @type {Issuer}  */
     const issuer = req.issuer
 
     const status = req.body.status
@@ -47,7 +49,9 @@ router.patch(
 )
 
 router.get('/vendors', async (req, res) => {
-  const vendors = await vendorRepository.list(req.issuer)
+  /** @type {Issuer}  */
+  const issuer = req.issuer
+  const vendors = await vendorRepository.list(issuer)
   return res.json(vendors)
 })
 

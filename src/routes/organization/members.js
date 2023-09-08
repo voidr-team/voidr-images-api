@@ -4,7 +4,9 @@ import express from 'express'
 const router = express.Router()
 
 router.get('/organization/members', async (req, res) => {
-  const orgId = req.issuer.organizationId
+  /** @type {Issuer}  */
+  const issuer = req.issuer
+  const orgId = issuer.organizationId
 
   const auth0Management = await auth0ManagementFactory()
 
@@ -23,7 +25,9 @@ router.delete('/organization/members/:sub', async (req, res) => {
   if (!req.params.sub) {
     throw HttpException(422, 'Missing member sub param')
   }
-  const orgId = req.issuer.organizationId
+  /** @type {Issuer}  */
+  const issuer = req.issuer
+  const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMembers(orgId, [sub])
   return res.json({ modified: true })
@@ -41,7 +45,9 @@ router.post('/organization/members/:sub/roles', async (req, res) => {
     throw HttpException(422, 'Missing role in body')
   }
 
-  const orgId = req.issuer.organizationId
+  /** @type {Issuer}  */
+  const issuer = req.issuer
+  const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
 
   await auth0Management.addRolesInMember(orgId, sub, roles)
@@ -59,7 +65,9 @@ router.put('/organization/members/:sub/roles', async (req, res) => {
     throw new HttpException(422, 'Missing role in body')
   }
 
-  const orgId = req.issuer.organizationId
+  /** @type {Issuer}  */
+  const issuer = req.issuer
+  const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
 
   const rolesResponse = await auth0Management.getRoles()
@@ -86,7 +94,9 @@ router.delete('/organization/members/:sub/roles', async (req, res) => {
     throw HttpException(422, 'Missing role in body')
   }
 
-  const orgId = req.issuer.organizationId
+  /** @type {Issuer}  */
+  const issuer = req.issuer
+  const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMemberRoles(orgId, sub, [
     req.body.role,
