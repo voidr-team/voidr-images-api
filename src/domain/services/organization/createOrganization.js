@@ -6,7 +6,7 @@ const createOrganization = async ({ name }) => {
 
   const createOrgResponse = await auth0Management.createOrganization({
     name: slug(name),
-    display_name: name,
+    displayName: name,
   })
 
   return createOrgResponse.data

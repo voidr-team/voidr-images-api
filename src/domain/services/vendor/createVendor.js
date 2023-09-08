@@ -31,6 +31,7 @@ const createVendor = async (issuer, vendorData) => {
   if (!vendorOrganizationId) {
     const auth0Org = await organizationService.createOrganization({
       name: vendorData.name,
+      displayName: vendorData.name,
     })
     vendorOrganizationId = auth0Org.id
   }
