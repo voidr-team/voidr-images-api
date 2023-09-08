@@ -3,14 +3,14 @@ import express from 'express'
 import { createVendorSchema, patchStatusVendorSchema } from './schema'
 import vendorRepository from '#src/infra/repositories/vendor'
 import vendorService from '#src/domain/services/vendor'
+import getIssuer from '#src/utils/request/getIssuer'
 const router = express.Router()
 
 router.post(
   '/vendors',
   validateSchema(createVendorSchema),
   async (req, res) => {
-    /** @type {Issuer}  */
-    const issuer = req.issuer
+    const issuer = getIssuer(req)
     const body = req.body
 
     const createdVendor = await vendorService.createVendor(issuer, {
@@ -31,8 +31,7 @@ router.patch(
   '/vendors/:vendorId/status',
   validateSchema(patchStatusVendorSchema),
   async (req, res) => {
-    /** @type {Issuer}  */
-    const issuer = req.issuer
+    const issuer = getIssuer(req)
 
     const status = req.body.status
 
@@ -49,8 +48,7 @@ router.patch(
 )
 
 router.get('/vendors', async (req, res) => {
-  /** @type {Issuer}  */
-  const issuer = req.issuer
+  const issuer = getIssuer(req)
   const vendors = await vendorRepository.list(issuer)
   return res.json(vendors)
 })

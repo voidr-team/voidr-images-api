@@ -8,6 +8,7 @@ import organizationInvites from './invites'
 import organizationRoles from './roles'
 import validateSchema from '#src/middlewares/validateSchema'
 import { createOrganizationSchema } from './schema'
+import getIssuer from '#src/utils/request/getIssuer'
 
 router.post(
   '/organization',
@@ -16,8 +17,7 @@ router.post(
     const auth0Management = await auth0ManagementFactory()
     const body = req.body
 
-    /** @type {Issuer}  */
-    const issuer = req.issuer
+    const issuer = getIssuer(req)
 
     if (issuer.organizationId) {
       throw new HttpException(422, 'Users already in a organization')

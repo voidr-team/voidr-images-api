@@ -3,6 +3,7 @@ import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory
 import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import { inviteSchema } from './schema'
+import getIssuer from '#src/utils/request/getIssuer'
 const router = express.Router()
 
 router.post(
@@ -26,8 +27,7 @@ router.post(
 )
 
 router.delete('/organization/invites/:inviteId', async (req, res) => {
-  /** @type {Issuer}  */
-  const issuer = req.issuer
+  const issuer = getIssuer(req)
   const orgId = issuer.organizationId
   const inviteId = req.params.inviteId
 
@@ -43,7 +43,7 @@ router.delete('/organization/invites/:inviteId', async (req, res) => {
 })
 
 router.get('/organization/invites', async (req, res) => {
-  const orgId = req.issuer.organizationId
+  const orgId = getIssuer(req).organizationId
 
   const auth0Management = await auth0ManagementFactory()
 

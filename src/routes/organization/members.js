@@ -1,11 +1,11 @@
 import HttpException from '#src/domain/exceptions/HttpException'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
+import getIssuer from '#src/utils/request/getIssuer'
 import express from 'express'
 const router = express.Router()
 
 router.get('/organization/members', async (req, res) => {
-  /** @type {Issuer}  */
-  const issuer = req.issuer
+  const issuer = getIssuer(req)
   const orgId = issuer.organizationId
 
   const auth0Management = await auth0ManagementFactory()
@@ -25,8 +25,7 @@ router.delete('/organization/members/:sub', async (req, res) => {
   if (!req.params.sub) {
     throw HttpException(422, 'Missing member sub param')
   }
-  /** @type {Issuer}  */
-  const issuer = req.issuer
+  const issuer = getIssuer(req)
   const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMembers(orgId, [sub])
@@ -44,9 +43,7 @@ router.post('/organization/members/:sub/roles', async (req, res) => {
   if (!roles || !roles.length) {
     throw HttpException(422, 'Missing role in body')
   }
-
-  /** @type {Issuer}  */
-  const issuer = req.issuer
+  const issuer = getIssuer(req)
   const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
 
@@ -64,9 +61,7 @@ router.put('/organization/members/:sub/roles', async (req, res) => {
   if (!req.body.role) {
     throw new HttpException(422, 'Missing role in body')
   }
-
-  /** @type {Issuer}  */
-  const issuer = req.issuer
+  const issuer = getIssuer(req)
   const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
 
@@ -93,9 +88,7 @@ router.delete('/organization/members/:sub/roles', async (req, res) => {
   if (!req.body.role) {
     throw HttpException(422, 'Missing role in body')
   }
-
-  /** @type {Issuer}  */
-  const issuer = req.issuer
+  const issuer = getIssuer(req)
   const orgId = issuer.organizationId
   const auth0Management = await auth0ManagementFactory()
   await auth0Management.removeOrganizationMemberRoles(orgId, sub, [
