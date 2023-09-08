@@ -19,6 +19,10 @@ router.post(
     /** @type {Issuer}  */
     const issuer = req.issuer
 
+    if (issuer.organizationId) {
+      throw new HttpException(422, 'Users already in a organization')
+    }
+
     const organizationResponse = await auth0Management.createOrganization({
       name: body.name,
       displayName: body.displayName,
