@@ -1,16 +1,20 @@
 import HttpException from '#src/domain/exceptions/HttpException'
+import logger from '#src/domain/logger'
 
 const errorHandling = (err, req, res, next) => {
   if (err.isAxiosError) {
     if (err.response) {
-      console.error(err.response.data)
-      console.error(err.response.status)
+      logger.error({
+        data: err.response.data,
+        status: err.response.status,
+        message: err.message,
+      })
     } else if (err.request) {
-      console.error(err.request)
+      logger.error(err.request)
     } else if (err.message) {
-      console.error('err', err.message)
+      logger.error(err.message)
     } else {
-      console.error(err)
+      logger.error(err)
     }
     return res.status(err?.response?.status || 500).json({
       error: 'Integration error',
@@ -19,16 +23,18 @@ const errorHandling = (err, req, res, next) => {
   }
 
   if (err instanceof HttpException) {
+    logger.error(err)
     return res
       .status(err.status)
       .json({ error: err.error, details: err.details })
   }
 
   if (err.status === 401) {
+    logger.error(err)
     return res.status(err.status).json({ error: 'Unauthorized' })
   }
 
-  console.error(err)
+  logger.error(err)
 
   res.status(err.status || 500).json({ error: 'Internal server error' })
 }
