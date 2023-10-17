@@ -1,165 +1,52 @@
 import HttpException from '#src/domain/exceptions/HttpException'
-import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
-import { inviteSchema } from './schema'
+const router = express.Router()
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 import organizationService from '#src/domain/services/organization'
-const router = express.Router()
-
-router.get('/organization/members', async (req, res) => {
-  const orgId = req.issuer.organizationId
-
-  const auth0Management = await auth0ManagementFactory()
-
-  const members = await auth0Management.getOrganizationMembersWithRoles(orgId)
-
-  const mappedMembers = members.map(({ user_id, ...member }) => ({
-    sub: user_id,
-    ...member,
-  }))
-
-  return res.json(mappedMembers)
-})
-
-router.get('/organization/invites', async (req, res) => {
-  const orgId = req.issuer.organizationId
-
-  const auth0Management = await auth0ManagementFactory()
-
-  const invitations = await auth0Management.getInvitations(orgId)
-
-  const toCamelCase = (invite) => ({
-    ...invite,
-    connectionId: invite.connection_id,
-    clientId: invite.client_id,
-    invitationUrl: invite.invitation_url,
-    ticketId: invite.ticket_id,
-    createdAt: invite.created_at,
-    expiresAt: invite.expires_at,
-    organizationId: invite.organization_id,
-  })
-  const mappedInvitations = invitations.data.map(toCamelCase)
-
-  return res.json(mappedInvitations)
-})
+import organizationMembers from './members'
+import organizationInvites from './invites'
+import organizationRoles from './roles'
+import validateSchema from '#src/middlewares/validateSchema'
+import { createOrganizationSchema } from './schema'
+import getIssuer from '#src/utils/request/getIssuer'
 
 router.post(
-  '/organization/invites',
-  validateSchema(inviteSchema),
+  '/organization',
+  validateSchema(createOrganizationSchema),
   async (req, res) => {
-    const { user, org_id } = req.auth.payload
-    const { email, roles, name } = req.body
-
     const auth0Management = await auth0ManagementFactory()
+    const body = req.body
 
-    await auth0Management.createInvite(org_id, {
-      inviterName: user.name,
-      inviteeEmail: email,
-      roles: roles,
-      inviteeName: name,
+    const issuer = getIssuer(req)
+
+    if (issuer.organizationId) {
+      throw new HttpException(422, 'Users already in a organization')
+    }
+
+    const organizationResponse = await auth0Management.createOrganization({
+      name: body.name,
+      displayName: body.displayName,
+      branding: {
+        logoUrl: body.logo,
+      },
     })
 
-    return res.json({ modified: true })
+    const organization = organizationResponse?.data
+
+    await auth0Management.addMembersToOrganization(organization.id, [
+      issuer.sub,
+    ])
+
+    return res.json({
+      name: organization.name,
+      id: organization.id,
+      displayName: organization.display_name,
+      branding: {
+        logoUrl: organization.branding?.logo_url,
+      },
+    })
   }
 )
-
-router.delete('/organization/invites/:inviteId', async (req, res) => {
-  const orgId = req.issuer.organizationId
-  const inviteId = req.params.inviteId
-
-  if (!inviteId) {
-    throw new HttpException(422, 'Missing inviteId param')
-  }
-
-  const auth0Management = await auth0ManagementFactory()
-
-  await auth0Management.deleteInvite(orgId, inviteId)
-
-  return res.json({ modified: true })
-})
-
-router.delete('/organization/members/:sub', async (req, res) => {
-  const sub = req.params.sub
-  if (!req.params.sub) {
-    throw HttpException(422, 'Missing member sub param')
-  }
-  const orgId = req.issuer.organizationId
-  const auth0Management = await auth0ManagementFactory()
-  await auth0Management.removeOrganizationMembers(orgId, [sub])
-  return res.json({ modified: true })
-})
-
-router.get('/organization/roles', async (req, res) => {
-  const auth0Management = await auth0ManagementFactory()
-  const roles = await auth0Management.getRoles()
-  return res.json(roles.data)
-})
-
-router.post('/organization/members/:sub/roles', async (req, res) => {
-  const roles = req.body.roles
-  const sub = req.params.sub
-
-  if (!req.params.sub) {
-    throw HttpException(422, 'Missing member sub param')
-  }
-
-  if (!roles || !roles.length) {
-    throw HttpException(422, 'Missing role in body')
-  }
-
-  const orgId = req.issuer.organizationId
-  const auth0Management = await auth0ManagementFactory()
-
-  await auth0Management.addRolesInMember(orgId, sub, roles)
-  return res.send({ modified: true })
-})
-
-router.put('/organization/members/:sub/roles', async (req, res) => {
-  const sub = req.params.sub
-
-  if (!req.params.sub) {
-    throw new HttpException(422, 'Missing member sub param')
-  }
-
-  if (!req.body.role) {
-    throw new HttpException(422, 'Missing role in body')
-  }
-
-  const roleBody = req.body.role
-
-  const orgId = req.issuer.organizationId
-  const auth0Management = await auth0ManagementFactory()
-
-  const rolesResponse = await auth0Management.getRoles()
-
-  const roles = rolesResponse?.data?.map((role) => role.id)
-
-  await auth0Management.removeOrganizationMemberRoles(orgId, sub, roles)
-
-  await auth0Management.addRolesInMember(orgId, sub, roleBody)
-
-  return res.json({ modified: true })
-})
-
-router.delete('/organization/members/:sub/roles', async (req, res) => {
-  const sub = req.params.sub
-
-  if (!req.params.sub) {
-    throw HttpException(422, 'Missing member sub param')
-  }
-
-  if (!req.body.role) {
-    throw HttpException(422, 'Missing role in body')
-  }
-
-  const orgId = req.issuer.organizationId
-  const auth0Management = await auth0ManagementFactory()
-  await auth0Management.removeOrganizationMemberRoles(orgId, sub, [
-    req.body.role,
-  ])
-
-  return res.json({ modified: true })
-})
 
 router.get('/organization-by-name', async (req, res) => {
   const name = req.query.name
@@ -188,4 +75,9 @@ router.get('/organization-by-name', async (req, res) => {
   })
 })
 
-export default router
+export default [
+  router,
+  organizationMembers,
+  organizationInvites,
+  organizationRoles,
+]

@@ -186,9 +186,14 @@ class Auth0Management {
   }
 
   /**
-   * @param {{name: string, display_name: string, branding: any, metadata: any}} payload
+   * @param {{name: string, displayName: string, branding: { logoUrl: string, colors: any }}, metadata: any}} payload
    */
-  createOrganization = async ({ name, display_name, branding, metadata }) => {
+  createOrganization = async ({
+    name,
+    displayName,
+    branding = {},
+    metadata,
+  }) => {
     const connectionsResponse = await this.getConnections()
 
     const enabledConnections = connectionsResponse?.data?.map((connection) => ({
@@ -198,10 +203,23 @@ class Auth0Management {
 
     return this.api.post('/api/v2/organizations', {
       name,
-      display_name,
-      branding,
+      display_name: displayName,
+      branding: {
+        logo_url: branding.logoUrl,
+        colors: branding.colors,
+      },
       metadata,
       enabled_connections: enabledConnections,
+    })
+  }
+
+  /**
+   * @param {string} orgId
+   * @param {string[]} members
+   */
+  addMembersToOrganization = async (orgId, members) => {
+    return this.api.post(`/api/v2/organizations/${orgId}/members`, {
+      members,
     })
   }
 }
