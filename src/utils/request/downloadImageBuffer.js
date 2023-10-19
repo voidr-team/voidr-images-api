@@ -4,12 +4,12 @@ import axios from 'axios'
 /**
  *
  * @param {string} url
- * @returns {import('node:stream').Readable}
+ * @returns {Promise<ArrayBuffer>}
  */
-const downloadImageStream = async (url) => {
+const downloadImageBuffer = async (url) => {
   return axios
     .get(url, {
-      responseType: 'stream',
+      responseType: 'arraybuffer',
     })
     .catch((err) => {
       logger.error('Failed to download image', { url })
@@ -18,4 +18,4 @@ const downloadImageStream = async (url) => {
     .then((response) => response.data)
 }
 
-export default downloadImageStream
+export default downloadImageBuffer

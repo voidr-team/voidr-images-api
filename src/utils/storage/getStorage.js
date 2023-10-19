@@ -1,6 +1,6 @@
 import { Storage } from '@google-cloud/storage'
-import crypto from '../../_utils/crypto'
-import storageServiceAccount from './storage-service-account'
+import storageServiceAccount from './storageServiceAccount'
+import crypto from '#utils/crypto'
 
 const getStorage = () => {
   const storage = new Storage({
