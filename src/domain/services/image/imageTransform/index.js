@@ -5,12 +5,9 @@ import sharpSmartCrop from 'smartcrop-sharp'
 class ImageTransform {
   /** @type {sharp.Sharp} */
   sharpChain = null
-  /** @type {ArrayBuffer} */
-  imageBuffer = null
 
   constructor(imageBuffer) {
     this.sharpChain = sharp(imageBuffer)
-    this.imageBuffer = imageBuffer
     this.promises = []
   }
 
@@ -30,29 +27,45 @@ class ImageTransform {
         height: crop.height,
       })
       const smartToCrop = value.topCrop
-      this.sharpChain
+      const croppedImage = await this.sharpChain
         .extract({
           width: smartToCrop.width,
           height: smartToCrop.height,
           left: smartToCrop.x,
           top: smartToCrop.y,
         })
-        .resize(crop.width, crop.height)
+        .resize(crop.width, crop.height, {
+          withoutReduction: true,
+          withoutEnlargement: true,
+        })
+        .toBuffer()
+      this.sharpChain = sharp(croppedImage)
     } else {
-      this.sharpChain.resize(crop.width, crop.height, {
-        position: crop.position || 'attention',
-      })
+      const croppedImage = await this.sharpChain
+        .resize(crop.width, crop.height, {
+          position: crop.position || sharp.strategy.attention,
+          fit: 'cover',
+          withoutReduction: true,
+          withoutEnlargement: true,
+        })
+        .toBuffer()
+      this.sharpChain = sharp(croppedImage)
     }
   })
 
-  resize = this.declareExecution((transforms) => {
+  resize = this.declareExecution(async (transforms) => {
     const { resize } = transforms
     const { width, height } = resize
     const defaultFit = width && height ? 'fill' : 'cover'
     const fit = resize.fit || defaultFit
-    this.sharpChain.resize(width, height, {
-      fit: fit,
-    })
+    const resizedImage = await this.sharpChain
+      .resize(width, height, {
+        fit: fit,
+        position: 'centre',
+      })
+      .toBuffer({ resolveWithObject: true })
+
+    this.sharpChain = sharp(resizedImage.data)
   })
 
   compress = this.declareExecution((transforms) => {
@@ -98,8 +111,8 @@ class ImageTransform {
     this.sharpChain.png().composite([{ input: rect, blend: 'dest-in' }])
   })
 
-  toFile = this.declareExecution((filename) => {
-    this.sharpChain.toFile(filename)
+  toFile = this.declareExecution(async (filename) => {
+    await this.sharpChain.toFile(filename)
   })
 
   rotate = this.declareExecution((transforms) => {
@@ -108,7 +121,8 @@ class ImageTransform {
   })
 
   execute = async () => {
-    return this.promises.reduce((p, fn) => p.then(fn), Promise.resolve())
+    await this.promises.reduce((p, fn) => p.then(fn), Promise.resolve())
+    return
   }
 }
 

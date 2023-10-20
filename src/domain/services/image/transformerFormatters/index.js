@@ -32,8 +32,8 @@ const splitParams = (transformers = '') =>
 const splitToObject = (transformers) => {
   const parsedTransformers = splitParams(transformers).reduce(
     (prev, current) => {
-      const [transformerKeyWord, transformerValue] = current.split(':')
-
+      const [transformerKeyWord, ...values] = current.split(':')
+      const transformerValue = values.join(':')
       if (!availableTransformers.includes(transformerKeyWord)) {
         throw new HttpException(
           422,

@@ -1,11 +1,7 @@
 import express from 'express'
-import sharp from 'sharp'
-import fs, { write } from 'fs'
 import getStorage from '#src/utils/storage/getStorage'
-import imageTransformFactory from '#src/domain/services/image/imageTransform'
-import downloadImageBuffer from '#src/utils/request/downloadImageBuffer'
 import transformerFormatters from '#src/domain/services/image/transformerFormatters'
-import HttpException from '#src/domain/exceptions/HttpException'
+import imageService from '#src/domain/services/image/imageService'
 const router = express.Router()
 
 router.get(
@@ -17,19 +13,11 @@ router.get(
     const transformPipeline =
       transformerFormatters.getTransformersPipeline(transforms)
 
-    const imageBuffer = await downloadImageBuffer(remote)
-
-    const imageTransformer = imageTransformFactory(imageBuffer)
-
-    transformPipeline.forEach((task) => {
-      const taskToRun = imageTransformer[task]
-      if (!taskToRun) {
-        throw new HttpException(422, `unknown transformer "${task}"`)
-      }
-      taskToRun(parsedTransforms)
-    })
-
-    await imageTransformer.toFile('test3.webp').execute()
+    await imageService.executePipeline(
+      remote,
+      parsedTransforms,
+      transformPipeline
+    )
 
     return res.send({
       transforms: parsedTransforms,
