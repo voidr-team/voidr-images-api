@@ -4,6 +4,7 @@ import fs, { write } from 'fs'
 import getStorage from '#src/utils/storage/getStorage'
 import imageTransformFactory from '#src/domain/services/image/imageTransform'
 import downloadImageBuffer from '#src/utils/request/downloadImageBuffer'
+import transformerFormatters from '#src/domain/services/image/transformerFormatters'
 const router = express.Router()
 
 router.get(
@@ -11,36 +12,24 @@ router.get(
   async (req, res) => {
     const { transforms = '', remote, project } = req.params
 
-    const parsedTransforms = transforms
-      .trim()
-      .split('/')
-      .reduce((prev, current) => {
-        if (!current) return prev
-        const [transformerKeyWord, transformerValue] = current.split(':')
-        return {
-          ...prev,
-          [transformerKeyWord]: transformerValue,
-        }
-      }, {})
+    const parsedTransforms = transformerFormatters.formatFromParams(transforms)
+    const transformPipeline =
+      transformerFormatters.getTransformersPipeline(transforms)
 
     const imageBuffer = await downloadImageBuffer(remote)
+
     const imageTransformer = imageTransformFactory(imageBuffer)
-    console.log({
-      transforms: parsedTransforms,
-      remote,
-      project,
+
+    transformPipeline.forEach((task) => {
+      imageTransformer[task](parsedTransforms)
     })
 
-    await imageTransformer
-      .crop(900, 900, { position: 'smart' })
-      .transform({ format: 'webp', quality: 80 })
-      .rounded('50%')
-      .toFile('test3.webp')
-      .execute()
+    await imageTransformer.toFile('test3.webp').execute()
 
     return res.send({
       transforms: parsedTransforms,
       remote,
+      transformPipeline,
       project,
     })
 

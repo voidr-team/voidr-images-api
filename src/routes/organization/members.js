@@ -23,7 +23,7 @@ router.get('/organization/members', async (req, res) => {
 router.delete('/organization/members/:sub', async (req, res) => {
   const sub = req.params.sub
   if (!req.params.sub) {
-    throw HttpException(422, 'Missing member sub param')
+    throw HttpException(422, 'missing member sub param')
   }
   const issuer = getIssuer(req)
   const orgId = issuer.organizationId
@@ -37,11 +37,11 @@ router.post('/organization/members/:sub/roles', async (req, res) => {
   const sub = req.params.sub
 
   if (!req.params.sub) {
-    throw HttpException(422, 'Missing member sub param')
+    throw HttpException(422, 'missing member sub param')
   }
 
   if (!roles || !roles.length) {
-    throw HttpException(422, 'Missing role in body')
+    throw HttpException(422, 'missing role in body')
   }
   const issuer = getIssuer(req)
   const orgId = issuer.organizationId
@@ -55,11 +55,11 @@ router.put('/organization/members/:sub/roles', async (req, res) => {
   const sub = req.params.sub
 
   if (!req.params.sub) {
-    throw new HttpException(422, 'Missing member sub param')
+    throw new HttpException(422, 'missing member sub param')
   }
 
   if (!req.body.role) {
-    throw new HttpException(422, 'Missing role in body')
+    throw new HttpException(422, 'missing role in body')
   }
   const issuer = getIssuer(req)
   const orgId = issuer.organizationId
@@ -82,11 +82,11 @@ router.delete('/organization/members/:sub/roles', async (req, res) => {
   const sub = req.params.sub
 
   if (!req.params.sub) {
-    throw HttpException(422, 'Missing member sub param')
+    throw HttpException(422, 'missing member sub param')
   }
 
   if (!req.body.role) {
-    throw HttpException(422, 'Missing role in body')
+    throw HttpException(422, 'missing role in body')
   }
   const issuer = getIssuer(req)
   const orgId = issuer.organizationId

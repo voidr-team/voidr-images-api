@@ -32,7 +32,7 @@ router.delete('/organization/invites/:inviteId', async (req, res) => {
   const inviteId = req.params.inviteId
 
   if (!inviteId) {
-    throw new HttpException(422, 'Missing inviteId param')
+    throw new HttpException(422, 'missing inviteId param')
   }
 
   const auth0Management = await auth0ManagementFactory()

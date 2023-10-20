@@ -20,7 +20,7 @@ router.post(
     const issuer = getIssuer(req)
 
     if (issuer.organizationId) {
-      throw new HttpException(422, 'Users already in a organization')
+      throw new HttpException(422, 'users already in a organization')
     }
 
     const organizationResponse = await auth0Management.createOrganization({
@@ -50,12 +50,12 @@ router.post(
 
 router.get('/organization-by-name', async (req, res) => {
   const name = req.query.name
-  if (!name) throw new HttpException(422, 'Missing query "name"')
+  if (!name) throw new HttpException(422, 'missing query "name"')
 
   if (name.length < 4)
     throw new HttpException(
       422,
-      'Query "name" should have at least 4 characters'
+      'query "name" should have at least 4 characters'
     )
 
   const organization = await organizationService.searchOrganization(name)

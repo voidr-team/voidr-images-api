@@ -21,56 +21,66 @@ class ImageTransform {
       return this
     }
 
-  crop = this.declareExecution(async (width, height, options = {}) => {
-    if (options.position === 'smart') {
+  crop = this.declareExecution(async (transforms) => {
+    const { crop } = transforms
+    if (crop.position === 'smart') {
       const file = await this.sharpChain.clone().toBuffer()
-      const value = await sharpSmartCrop.crop(file, { width, height })
-      const crop = value.topCrop
+      const value = await sharpSmartCrop.crop(file, {
+        width: crop.width,
+        height: crop.height,
+      })
+      const smartToCrop = value.topCrop
       this.sharpChain
         .extract({
-          width: crop.width,
-          height: crop.height,
-          left: crop.x,
-          top: crop.y,
+          width: smartToCrop.width,
+          height: smartToCrop.height,
+          left: smartToCrop.x,
+          top: smartToCrop.y,
         })
-        .resize(width, height)
+        .resize(crop.width, crop.height)
     } else {
-      this.sharpChain.resize(width, height, {
-        position: options.position || 'attention',
+      this.sharpChain.resize(crop.width, crop.height, {
+        position: crop.position || 'attention',
       })
     }
   })
 
-  resize = this.declareExecution((width, height, options = {}) => {
+  resize = this.declareExecution((transforms) => {
+    const { resize } = transforms
+    const { width, height } = resize
     const defaultFit = width && height ? 'fill' : 'cover'
-    const fit = options.fit || defaultFit
+    const fit = resize.fit || defaultFit
     this.sharpChain.resize(width, height, {
       fit: fit,
     })
   })
 
-  transform = this.declareExecution((options = { format: 'webp' }) => {
+  compress = this.declareExecution((transforms) => {
     const availableFormats = ['jpeg', 'png', 'webp', 'gif', 'tiff', 'avif']
-    if (!availableFormats.includes(options.format)) {
-      throw new HttpException(422, `format ${options.format} not available`)
+    const format = transforms?.convert?.format
+    const quality = transforms?.compress?.quality
+    if (!availableFormats.includes(format)) {
+      throw new HttpException(422, `convert format "${format}" not available`)
     }
 
-    this.sharpChain[options.format]({
-      quality: options.quality || 80,
+    this.sharpChain[format]({
+      quality: quality || 80,
     })
   })
 
-  blur = this.declareExecution((sigma) => {
+  blur = this.declareExecution((transforms) => {
+    const sigma = transforms?.blur?.sigma
     if (sigma < 0.3 || sigma > 1000) {
       throw new HttpException(
         422,
-        `blur ${sigma} needs to be between 0.3 and 1000`
+        `blur value "${sigma}" needs to be between 0.3 and 1000`
       )
     }
     this.sharpChain.blur(sigma)
   })
 
-  rounded = this.declareExecution(async (angle) => {
+  radius = this.declareExecution(async (transforms) => {
+    const length = transforms?.radius?.length
     const { info } = await this.sharpChain
       .clone()
       .png()
@@ -78,7 +88,7 @@ class ImageTransform {
     const { width, height } = info
 
     const rect = Buffer.from(
-      `<svg><rect x="0" y="0" width="${width}" height="${height}" rx="${angle}" ry="${angle}"/></svg>`
+      `<svg><rect x="0" y="0" width="${width}" height="${height}" rx="${length}" ry="${length}"/></svg>`
     )
 
     this.sharpChain
@@ -91,7 +101,8 @@ class ImageTransform {
     this.sharpChain.toFile(filename)
   })
 
-  rotate = this.declareExecution((angle) => {
+  rotate = this.declareExecution((transforms) => {
+    const angle = transforms?.rotate?.angle
     this.sharpChain.rotate(angle)
   })
 
