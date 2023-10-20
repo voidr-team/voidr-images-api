@@ -5,6 +5,7 @@ import getStorage from '#src/utils/storage/getStorage'
 import imageTransformFactory from '#src/domain/services/image/imageTransform'
 import downloadImageBuffer from '#src/utils/request/downloadImageBuffer'
 import transformerFormatters from '#src/domain/services/image/transformerFormatters'
+import HttpException from '#src/domain/exceptions/HttpException'
 const router = express.Router()
 
 router.get(
@@ -21,7 +22,11 @@ router.get(
     const imageTransformer = imageTransformFactory(imageBuffer)
 
     transformPipeline.forEach((task) => {
-      imageTransformer[task](parsedTransforms)
+      const taskToRun = imageTransformer[task]
+      if (!taskToRun) {
+        throw new HttpException(422, `unknown transformer "${task}"`)
+      }
+      taskToRun(parsedTransforms)
     })
 
     await imageTransformer.toFile('test3.webp').execute()

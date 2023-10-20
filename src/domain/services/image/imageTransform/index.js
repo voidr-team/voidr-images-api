@@ -80,21 +80,22 @@ class ImageTransform {
   })
 
   radius = this.declareExecution(async (transforms) => {
-    const length = transforms?.radius?.length
+    let length = transforms?.radius?.length
     const { info } = await this.sharpChain
       .clone()
       .png()
       .toBuffer({ resolveWithObject: true })
     const { width, height } = info
 
+    if (length.endsWith('p')) {
+      length = length.replace('p', '%')
+    }
+
     const rect = Buffer.from(
       `<svg><rect x="0" y="0" width="${width}" height="${height}" rx="${length}" ry="${length}"/></svg>`
     )
 
-    this.sharpChain
-      .resize(width, height, { fit: 'cover' })
-      .png()
-      .composite([{ input: rect, blend: 'dest-in' }])
+    this.sharpChain.png().composite([{ input: rect, blend: 'dest-in' }])
   })
 
   toFile = this.declareExecution((filename) => {

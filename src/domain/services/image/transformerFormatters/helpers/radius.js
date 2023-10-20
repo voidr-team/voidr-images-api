@@ -5,16 +5,16 @@ export default (radiusValue) => {
     throw new HttpException(422, `invalid radius value ${radiusValue}`)
   }
   const isPx = radiusValue.endsWith('px')
-  const isPercent = radiusValue.endsWith('%')
+  const isPercent = radiusValue.endsWith('p')
   if (!isPx && !isPercent) {
     throw new HttpException(
       422,
-      `invalid radius unit, radius unit must be "px" or "%"`
+      `invalid radius unit, radius unit must be "px" for pixels or "p" for percentage`
     )
   }
 
   const radiusValueNumber = Number(
-    radiusValue.replace('%', '').replace('px', '')
+    radiusValue.replace('p', '').replace('px', '')
   )
 
   if (
@@ -24,7 +24,7 @@ export default (radiusValue) => {
   ) {
     throw new HttpException(
       422,
-      `radius value have be a value between 0 and 360, radius value should be similar to "50%" or "12px"`
+      `radius value have be a value between 0 and 360, radius value should be similar to "50p" or "12px"`
     )
   }
 
