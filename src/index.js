@@ -24,7 +24,7 @@ mongoose
   .then(() => logger.info('MongoDB connected'))
   .catch((err) => logger.info('Could not connect to MongoDB', err))
 
-app.use(helmet())
+app.use(helmet({ crossOriginResourcePolicy: false }))
 app.use(cors({ origin: '*' }))
 app.use(express.json())
 
