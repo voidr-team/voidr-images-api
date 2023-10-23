@@ -25,7 +25,7 @@ mongoose
   .catch((err) => logger.info('Could not connect to MongoDB', err))
 
 app.use(helmet())
-app.use(cors())
+app.use(cors('*'))
 app.use(express.json())
 
 morgan.token('body', (req, res) => JSON.stringify(req.body))
