@@ -11,6 +11,7 @@ import authCheck from './middlewares/authCheck'
 import errorHandling from './middlewares/errorHandling'
 import authInjection from './middlewares/authInjection'
 import logger from './domain/logger'
+import getStorage from './utils/storage/getStorage'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -65,7 +66,17 @@ app.use(morganMiddleware)
 app.use(apiKeyValidation)
 
 app.get('/health', async (req, res) => {
-  return res.send('ok')
+  const storage = getStorage()
+  const bucket = storage.bucket('voidr_images_test')
+  const bucketFile = bucket.file('test.webp')
+  const fileRead = bucketFile.createReadStream()
+  let headers = {
+    'Content-disposition': 'attachment; filename="' + 'test.webp' + '"',
+    'Content-Type': 'image/webp',
+  }
+  res.status(200).set(headers)
+  return fileRead.pipe(res)
+  // return res.send('ok')
 })
 
 // app.use(authCheck)
