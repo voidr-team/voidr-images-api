@@ -68,7 +68,7 @@ const getTransformersPipeline = (transformersString) => {
     // compress and convert are the same task
     .filter((keyword) => !['compress', 'convert'].includes(keyword))
 
-  // compress needs to run first
+  // compress needs to run first and it will always run
   return ['compress', ...keyWords]
 }
 

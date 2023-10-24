@@ -124,6 +124,8 @@ class ImageTransform {
     await this.promises.reduce((p, fn) => p.then(fn), Promise.resolve())
     return
   }
+
+  pipe = (...args) => this.sharpChain.pipe(...args)
 }
 
 function imageTransformFactory(imageBuffer) {
