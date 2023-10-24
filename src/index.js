@@ -29,7 +29,7 @@ app.use(cors({ origin: '*' }))
 app.use(express.json())
 
 morgan.token('body', (req, res) => JSON.stringify(req.body))
-// ':method :url :status :response-time ms \n:body '
+
 const morganMiddleware = morgan(
   function (tokens, req, res) {
     return JSON.stringify({
@@ -66,17 +66,7 @@ app.use(morganMiddleware)
 // app.use(apiKeyValidation)
 
 app.get('/health', async (req, res) => {
-  const storage = getStorage()
-  const bucket = storage.bucket('voidr_images_test')
-  const bucketFile = bucket.file('test.webp')
-  const fileRead = bucketFile.createReadStream()
-  let headers = {
-    'Content-disposition': 'attachment; filename="' + 'test.webp' + '"',
-    'Content-Type': 'image/webp',
-  }
-  res.status(200).set(headers)
-  return fileRead.pipe(res)
-  // return res.send('ok')
+  return res.send('ok')
 })
 
 // app.use(authCheck)

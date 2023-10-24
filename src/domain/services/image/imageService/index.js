@@ -37,7 +37,7 @@ const saveImageInBucket = async ({
   const bucket = storage.bucket('voidr_images_test')
 
   const bucketFile = bucket.file(
-    `${project}/remote/${baseFilePath}/${imageName}.${imageMetadata}`
+    `${project}/remote/${baseFilePath}/${imageName}.${imageMetadata.format}`
   )
 
   const bucketFileWStream = bucketFile.createWriteStream()
