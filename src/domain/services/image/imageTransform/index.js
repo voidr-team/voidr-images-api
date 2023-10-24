@@ -2,7 +2,7 @@ import HttpException from '#src/domain/exceptions/HttpException'
 import sharp from 'sharp'
 import sharpSmartCrop from 'smartcrop-sharp'
 
-class ImageTransform {
+export class ImageTransform {
   /** @type {sharp.Sharp} */
   sharpChain = null
 
@@ -126,6 +126,9 @@ class ImageTransform {
   }
 
   pipe = (...args) => this.sharpChain.pipe(...args)
+
+  bufferWithMetadata = () =>
+    this.sharpChain.toBuffer({ resolveWithObject: true })
 }
 
 function imageTransformFactory(imageBuffer) {
