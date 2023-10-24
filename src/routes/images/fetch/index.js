@@ -27,7 +27,7 @@ router.get(
     })
 
     let headers = {
-      'Content-Type': `image/${imageMetadata.format}`,
+      'Content-Type': `image/${imageMetadata.info.format}`,
     }
 
     const fileRead = bucketFile.createReadStream()

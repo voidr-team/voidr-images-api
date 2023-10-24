@@ -14,7 +14,7 @@ export default (radiusValue) => {
   }
 
   const radiusValueNumber = Number(
-    radiusValue.replace('p', '').replace('px', '')
+    radiusValue.replace('px', '').replace('p', '')
   )
 
   if (
@@ -24,7 +24,7 @@ export default (radiusValue) => {
   ) {
     throw new HttpException(
       422,
-      `radius value have be a value between 0 and 360, radius value should be similar to "50p" or "12px"`
+      `radius value must be a value between 0 and 360, radius value should be similar to "50p" or "12px"`
     )
   }
 
