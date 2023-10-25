@@ -4,7 +4,7 @@ export default (rotateValue) => {
   const rotateValueNumber = Number(rotateValue)
 
   if (!rotateValue) {
-    throw new HttpException(422, `invalid rotate value ${rotateValue}`)
+    throw new HttpException(422, `invalid rotate value "${rotateValue}"`)
   }
 
   if (

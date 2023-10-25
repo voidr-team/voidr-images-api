@@ -18,8 +18,8 @@ export class ImageTransform {
       return this
     }
 
-  crop = this.declareExecution(async (transforms) => {
-    const { crop } = transforms
+  crop = this.declareExecution(async (transformers) => {
+    const { crop } = transformers
     if (crop.position === 'smart') {
       const file = await this.sharpChain.clone().toBuffer()
       const value = await sharpSmartCrop.crop(file, {
@@ -53,8 +53,8 @@ export class ImageTransform {
     }
   })
 
-  resize = this.declareExecution(async (transforms) => {
-    const { resize } = transforms
+  resize = this.declareExecution(async (transformers) => {
+    const { resize } = transformers
     const { width, height } = resize
     const defaultFit = width && height ? 'fill' : 'cover'
     const fit = resize.fit || defaultFit
@@ -68,10 +68,10 @@ export class ImageTransform {
     this.sharpChain = sharp(resizedImage.data)
   })
 
-  compress = this.declareExecution((transforms) => {
+  compress = this.declareExecution((transformers) => {
     const availableFormats = ['jpeg', 'png', 'webp', 'gif', 'tiff', 'avif']
-    const format = transforms?.convert?.format
-    const quality = transforms?.compress?.quality
+    const format = transformers?.convert?.format
+    const quality = transformers?.compress?.quality
     if (!availableFormats.includes(format)) {
       throw new HttpException(422, `convert format "${format}" not available`)
     }
@@ -81,8 +81,8 @@ export class ImageTransform {
     })
   })
 
-  blur = this.declareExecution((transforms) => {
-    const sigma = transforms?.blur?.sigma
+  blur = this.declareExecution((transformers) => {
+    const sigma = transformers?.blur?.sigma
     if (sigma < 0.3 || sigma > 1000) {
       throw new HttpException(
         422,
@@ -92,8 +92,8 @@ export class ImageTransform {
     this.sharpChain.blur(sigma)
   })
 
-  radius = this.declareExecution(async (transforms) => {
-    let length = transforms?.radius?.length
+  radius = this.declareExecution(async (transformers) => {
+    let length = transformers?.radius?.length
     const { info } = await this.sharpChain
       .clone()
       .png()
@@ -115,8 +115,8 @@ export class ImageTransform {
     await this.sharpChain.toFile(filename)
   })
 
-  rotate = this.declareExecution((transforms) => {
-    const angle = transforms?.rotate?.angle
+  rotate = this.declareExecution((transformers) => {
+    const angle = transformers?.rotate?.angle
     this.sharpChain.rotate(angle)
   })
 

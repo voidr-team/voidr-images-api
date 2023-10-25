@@ -1,5 +1,5 @@
 import HttpException from '#src/domain/exceptions/HttpException'
-import { VendorSchema } from '#src/domain/models/Vendor'
+import { VendorSchema } from '#models/Vendor'
 import vendorRepository from '#src/infra/repositories/vendor'
 import organizationService from '../organization'
 

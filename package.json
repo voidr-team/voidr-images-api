@@ -13,7 +13,7 @@
     "#src/*": "./src/*",
     "#routes/*": "./src/routes/*",
     "#middlewares/*": "./src/middlewares/*",
-    "#models/*": "./src/domain/models/*",
+    "#models/*": "./src/models/*",
     "#repositories/*": "./src/infra/repositories/*",
     "#providers/*": "./src/infra/providers/*",
     "#domain/*": "./src/domain/*",

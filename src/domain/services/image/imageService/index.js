@@ -5,28 +5,35 @@ import imageTransformFactory, {
 } from '#src/domain/services/image/imageTransform'
 import getImageNameFromUrl from '#src/utils/image/getImageNameFromUrl'
 import getStorage from '#src/utils/storage/getStorage'
+import sharp from 'sharp'
+import imageRepository from '#src/infra/repositories/image'
+import { ImageSchema } from '#src/models/Image'
 
 /**
  * @param {string} remoteImg
- * @param {object} transforms
+ * @param {object} transformers
  * @param {string[]} transformPipeline
  */
-const executePipeline = async (remoteImg, transforms, transformPipeline) => {
+const executePipeline = async (remoteImg, transformers, transformPipeline) => {
   const imageBuffer = await downloadImageBuffer(remoteImg)
 
   const imageTransformer = imageTransformFactory(imageBuffer)
+
+  const rawImageMetadata = (await imageTransformer.bufferWithMetadata()).info
 
   transformPipeline.forEach((task) => {
     const taskToRun = imageTransformer[task]
     if (!taskToRun) {
       throw new HttpException(422, `unknown transformer "${task}"`)
     }
-    taskToRun(transforms)
+    taskToRun(transformers)
   })
 
   await imageTransformer.execute()
 
-  return imageTransformer
+  const imageMetadata = (await imageTransformer.bufferWithMetadata()).info
+
+  return { imageTransformer, rawImageMetadata, imageMetadata }
 }
 
 /**
@@ -35,6 +42,7 @@ const executePipeline = async (remoteImg, transforms, transformPipeline) => {
  *  project: string,
  *  remoteImageUrl: string,
  *  baseFilePath: string
+ *  imageMetadata: sharp.OutputInfo
  * }} params
  */
 const saveImageInBucket = async ({
@@ -42,9 +50,8 @@ const saveImageInBucket = async ({
   project,
   remoteImageUrl,
   baseFilePath,
+  imageMetadata,
 }) => {
-  const imageMetadata = await imageTransformer.bufferWithMetadata()
-
   const imageName = getImageNameFromUrl(remoteImageUrl)
 
   const storage = getStorage()
@@ -54,7 +61,7 @@ const saveImageInBucket = async ({
   const underscoredFilePath = baseFilePath.replace('/', '_')
 
   const bucketFile = bucket.file(
-    `${project}/remote/${imageName}/${underscoredFilePath}/${imageName}.${imageMetadata.info.format}`
+    `${project}/remote/${imageName}/${underscoredFilePath}/${imageName}.${imageMetadata.format}`
   )
 
   const bucketFileWStream = bucketFile.createWriteStream()
@@ -70,13 +77,25 @@ const saveImageInBucket = async ({
 
   return {
     bucketFile,
-    imageMetadata,
+    imageName,
   }
+}
+
+/** @param {ImageSchema} image */
+const getImageFromBucket = (image) => {
+  const storage = getStorage()
+
+  const bucket = storage.bucket('voidr_images_test')
+
+  const bucketFile = bucket.file(image.originUrl)
+
+  return bucketFile
 }
 
 const imageService = {
   executePipeline,
   saveImageInBucket,
+  getImageFromBucket,
 }
 
 export default imageService

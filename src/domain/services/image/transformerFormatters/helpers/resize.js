@@ -2,7 +2,7 @@ import HttpException from '#src/domain/exceptions/HttpException'
 
 export default (resizeValue) => {
   if (!resizeValue) {
-    throw new HttpException(422, `invalid crop value ${resizeValue}`)
+    throw new HttpException(422, `invalid crop value "${resizeValue}"`)
   }
 
   const resizes = resizeValue.split('x')
@@ -17,7 +17,7 @@ export default (resizeValue) => {
   ) {
     throw new HttpException(
       422,
-      `invalid resize value ${resizeValue}, resize value must be similar to 920x470 or 920x or x940`
+      `invalid resize value "${resizeValue}", resize value must be similar to 920x470 or 920x or x940`
     )
   }
 

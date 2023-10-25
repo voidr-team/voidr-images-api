@@ -4,7 +4,7 @@ export default (compressValue) => {
   const compressValueNumber = Number(compressValue)
 
   if (!compressValue) {
-    throw new HttpException(422, `invalid compress value ${compressValue}`)
+    throw new HttpException(422, `invalid compress value "${compressValue}"`)
   }
 
   const slugAvailableValues = ['smart']
