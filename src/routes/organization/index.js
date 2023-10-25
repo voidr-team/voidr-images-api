@@ -13,6 +13,7 @@ import auth from '#src/middlewares/auth'
 
 router.post(
   '/organization',
+  auth,
   validateSchema(createOrganizationSchema),
   async (req, res) => {
     const auth0Management = await auth0ManagementFactory()
@@ -49,7 +50,7 @@ router.post(
   }
 )
 
-router.get('/organization-by-name', async (req, res) => {
+router.get('/organization-by-name', auth, async (req, res) => {
   const name = req.query.name
   if (!name) throw new HttpException(422, 'missing query "name"')
 

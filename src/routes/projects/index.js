@@ -10,6 +10,7 @@ const router = express.Router()
 
 router.post(
   '/projects',
+  auth,
   validateSchema(createProjectSchema),
   async (req, res) => {
     const issuer = getIssuer(req)
@@ -35,7 +36,7 @@ router.post(
   }
 )
 
-router.get('/projects', async (req, res) => {
+router.get('/projects', auth, async (req, res) => {
   const issuer = getIssuer(req)
   const projects = await projectRepository.list(issuer)
   return res.json(projects)

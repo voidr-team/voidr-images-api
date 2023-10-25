@@ -9,6 +9,7 @@ const router = express.Router()
 
 router.post(
   '/organization/invites',
+  auth,
   validateSchema(inviteSchema),
   async (req, res) => {
     const { user, org_id } = req.auth.payload
@@ -27,7 +28,7 @@ router.post(
   }
 )
 
-router.delete('/organization/invites/:inviteId', async (req, res) => {
+router.delete('/organization/invites/:inviteId', auth, async (req, res) => {
   const issuer = getIssuer(req)
   const orgId = issuer.organizationId
   const inviteId = req.params.inviteId
@@ -43,7 +44,7 @@ router.delete('/organization/invites/:inviteId', async (req, res) => {
   return res.json({ modified: true })
 })
 
-router.get('/organization/invites', async (req, res) => {
+router.get('/organization/invites', auth, async (req, res) => {
   const orgId = getIssuer(req).organizationId
 
   const auth0Management = await auth0ManagementFactory()

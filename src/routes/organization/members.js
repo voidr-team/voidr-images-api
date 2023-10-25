@@ -5,7 +5,7 @@ import getIssuer from '#src/utils/request/getIssuer'
 import express from 'express'
 const router = express.Router()
 
-router.get('/organization/members', async (req, res) => {
+router.get('/organization/members', auth, async (req, res) => {
   const issuer = getIssuer(req)
   const orgId = issuer.organizationId
 
@@ -21,7 +21,7 @@ router.get('/organization/members', async (req, res) => {
   return res.json(mappedMembers)
 })
 
-router.delete('/organization/members/:sub', async (req, res) => {
+router.delete('/organization/members/:sub', auth, async (req, res) => {
   const sub = req.params.sub
   if (!req.params.sub) {
     throw HttpException(422, 'missing member sub param')
@@ -52,7 +52,7 @@ router.post('/organization/members/:sub/roles', async (req, res) => {
   return res.send({ modified: true })
 })
 
-router.put('/organization/members/:sub/roles', async (req, res) => {
+router.put('/organization/members/:sub/roles', auth, async (req, res) => {
   const sub = req.params.sub
 
   if (!req.params.sub) {
@@ -79,7 +79,7 @@ router.put('/organization/members/:sub/roles', async (req, res) => {
   return res.json({ modified: true })
 })
 
-router.delete('/organization/members/:sub/roles', async (req, res) => {
+router.delete('/organization/members/:sub/roles', auth, async (req, res) => {
   const sub = req.params.sub
 
   if (!req.params.sub) {
