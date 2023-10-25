@@ -5,8 +5,6 @@ import getIssuer from '#src/utils/request/getIssuer'
 import express from 'express'
 const router = express.Router()
 
-router.use(auth)
-
 router.get('/organization/members', async (req, res) => {
   const issuer = getIssuer(req)
   const orgId = issuer.organizationId

@@ -2,8 +2,6 @@ import auth from '#src/middlewares/auth'
 import express from 'express'
 const router = express.Router()
 
-router.use(auth)
-
 router.get('/user/info', async (req, res) => {
   const payload = req.auth.payload
 

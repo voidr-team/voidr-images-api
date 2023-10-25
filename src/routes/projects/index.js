@@ -8,8 +8,6 @@ import { createProjectSchema } from './schema'
 import auth from '#src/middlewares/auth'
 const router = express.Router()
 
-router.use(auth)
-
 router.post(
   '/projects',
   validateSchema(createProjectSchema),
