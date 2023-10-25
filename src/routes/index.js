@@ -1,5 +1,11 @@
 import userRoutes from './user'
 import organizationRoutes from './organization'
 import imagesFetchRoutes from './images/fetch'
+import projectsRouter from './projects'
 
-export default [userRoutes, organizationRoutes, imagesFetchRoutes]
+export default [
+  userRoutes,
+  organizationRoutes,
+  projectsRouter,
+  imagesFetchRoutes,
+]

@@ -8,7 +8,7 @@ import { createProjectSchema } from './schema'
 const router = express.Router()
 
 router.post(
-  '/project',
+  '/projects',
   validateSchema(createProjectSchema),
   async (req, res) => {
     const issuer = getIssuer(req)
@@ -34,7 +34,7 @@ router.post(
   }
 )
 
-router.get('/project', async (req, res) => {
+router.get('/projects', async (req, res) => {
   const issuer = getIssuer(req)
   const projects = await projectRepository.list(issuer)
   return res.json(projects)
