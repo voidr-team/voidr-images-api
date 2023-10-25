@@ -26,9 +26,21 @@ router.get(
       return fileRead.pipe(res)
     }
 
-    const existedProject = await projectRepository.exists(project)
-    if (!existedProject) {
+    const currentProject = await projectRepository.getByName(project)
+    if (!currentProject) {
       throw new HttpException(404, `project "${project}" not found`)
+    }
+
+    const allowAllDomains = currentProject.domains.includes('*')
+    const isAllowedDomain = currentProject.domains.find((domain) =>
+      remote.startsWith(domain)
+    )
+
+    if (!allowAllDomains && !isAllowedDomain) {
+      throw new HttpException(
+        422,
+        `remote image url domain is not allowed in project "${project}"`
+      )
     }
 
     const parsedTransformers =

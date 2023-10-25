@@ -29,10 +29,17 @@ const exists = async (projectName) => {
   return existsProject
 }
 
+/**  @param {string} projectName  */
+const getByName = async (projectName) => {
+  const project = await Project.findOne({ name: projectName }).exec()
+  return project
+}
+
 const projectRepository = {
   create,
   list,
   exists,
+  getByName,
 }
 
 export default projectRepository

@@ -4,7 +4,10 @@ import validateSchema from '#src/middlewares/validateSchema'
 import express from 'express'
 import { inviteSchema } from './schema'
 import getIssuer from '#src/utils/request/getIssuer'
+import auth from '#src/middlewares/auth'
 const router = express.Router()
+
+router.use(auth)
 
 router.post(
   '/organization/invites',

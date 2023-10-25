@@ -1,8 +1,11 @@
 import HttpException from '#src/domain/exceptions/HttpException'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
+import auth from '#src/middlewares/auth'
 import getIssuer from '#src/utils/request/getIssuer'
 import express from 'express'
 const router = express.Router()
+
+router.use(auth)
 
 router.get('/organization/members', async (req, res) => {
   const issuer = getIssuer(req)

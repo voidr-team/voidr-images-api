@@ -9,6 +9,9 @@ import organizationRoles from './roles'
 import validateSchema from '#src/middlewares/validateSchema'
 import { createOrganizationSchema } from './schema'
 import getIssuer from '#src/utils/request/getIssuer'
+import auth from '#src/middlewares/auth'
+
+router.use(auth)
 
 router.post(
   '/organization',

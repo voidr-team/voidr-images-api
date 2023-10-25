@@ -5,7 +5,10 @@ import projectRepository from '#src/infra/repositories/project'
 import HttpException from '#src/domain/exceptions/HttpException'
 import { projectConfig } from '#src/models/Project/projectConfig'
 import { createProjectSchema } from './schema'
+import auth from '#src/middlewares/auth'
 const router = express.Router()
+
+router.use(auth)
 
 router.post(
   '/projects',

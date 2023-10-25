@@ -63,8 +63,6 @@ const morganMiddleware = morgan(
 )
 app.use(morganMiddleware)
 
-// app.use(apiKeyValidation)
-
 app.get('/health', async (req, res) => {
   return res.send('ok')
 })
