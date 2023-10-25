@@ -6,12 +6,8 @@ import cors from 'cors'
 import mongoose from 'mongoose'
 import routes from './routes'
 import morgan from 'morgan'
-import apiKeyValidation from './middlewares/apiKeyValidation'
-import authCheck from './middlewares/authCheck'
 import errorHandling from './middlewares/errorHandling'
-import authInjection from './middlewares/authInjection'
 import logger from './domain/logger'
-import getStorage from './utils/storage/getStorage'
 
 const app = express()
 const PORT = process.env.PORT || 3000
