@@ -13,22 +13,33 @@ router.get(
 
     const originUrl = req.baseUrl + req.path
 
-    const existedImage = await imageRepository.getByOriginUrl(originUrl)
-    if (existedImage) {
-      const bucketFile = imageService.getImageFromBucket(existedImage)
-      const fileRead = bucketFile.createReadStream()
+    const [currentProject, existedImage] = Promise.all([
+      projectRepository.getByName(project),
+      imageRepository.getByOriginUrl(originUrl),
+    ])
 
-      let headers = {
-        'Content-Type': `image/${existedImage.metadata.format}`,
-      }
-
-      res.status(200).set(headers)
-      return fileRead.pipe(res)
-    }
-
-    const currentProject = await projectRepository.getByName(project)
     if (!currentProject) {
       throw new HttpException(404, `project "${project}" not found`)
+    }
+
+    if (existedImage) {
+      const bucketFile = imageService.getImageFromBucket(
+        existedImage,
+        currentProject
+      )
+
+      const [bucketFileExists] = await bucketFile.exists()
+
+      if (bucketFileExists) {
+        const fileRead = bucketFile.createReadStream()
+
+        let headers = {
+          'Content-Type': `image/${existedImage.metadata.format}`,
+        }
+
+        res.status(200).set(headers)
+        return fileRead.pipe(res)
+      }
     }
 
     const allowAllDomains = currentProject.domains.includes('*')
@@ -58,7 +69,7 @@ router.get(
 
     const { bucketFile, imageName } = await imageService.saveImageInBucket({
       imageTransformer,
-      project,
+      project: currentProject,
       remoteImageUrl: remote,
       baseFilePath: transformers,
       imageMetadata,
@@ -68,7 +79,7 @@ router.get(
       'Content-Type': `image/${imageMetadata.format}`,
     }
 
-    await imageRepository.create(project, {
+    const imagePayload = {
       name: imageName,
       remote,
       bucketFile: bucketFile.name,
@@ -76,7 +87,13 @@ router.get(
       metadata: imageMetadata,
       rawMetadata: rawImageMetadata,
       originUrl,
-    })
+    }
+
+    if (existedImage) {
+      await imageRepository.update(existedImage.id, imagePayload)
+    } else {
+      await imageRepository.create(project, imagePayload)
+    }
 
     const fileRead = bucketFile.createReadStream()
     res.status(200).set(headers)

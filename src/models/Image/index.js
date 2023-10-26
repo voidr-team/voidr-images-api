@@ -21,6 +21,10 @@ export const Image = mongoose.model(
         type: String,
         required: true,
       },
+      bucketFile: {
+        type: String,
+        required: true,
+      },
       metadata: Object,
       rawMetadata: Object,
       transformers: Object,

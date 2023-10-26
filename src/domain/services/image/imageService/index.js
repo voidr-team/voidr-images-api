@@ -6,9 +6,8 @@ import imageTransformFactory, {
 import getImageNameFromUrl from '#src/utils/image/getImageNameFromUrl'
 import getStorage from '#src/utils/storage/getStorage'
 import sharp from 'sharp'
-import imageRepository from '#src/infra/repositories/image'
 import { ImageSchema } from '#src/models/Image'
-
+import { ProjectSchema } from '#src/models/Project'
 /**
  * @param {string} remoteImg
  * @param {object} transformers
@@ -39,7 +38,7 @@ const executePipeline = async (remoteImg, transformers, transformPipeline) => {
 /**
  * @param {{
  *  imageTransformer: ImageTransform,
- *  project: string,
+ *  project: ProjectSchema,
  *  remoteImageUrl: string,
  *  baseFilePath: string
  *  imageMetadata: sharp.OutputInfo
@@ -56,12 +55,12 @@ const saveImageInBucket = async ({
 
   const storage = getStorage()
 
-  const bucket = storage.bucket('voidr_images_test')
+  const bucket = storage.bucket(project.bucket.name)
 
-  const underscoredFilePath = baseFilePath.replace('/', '_')
+  const underscoredFilePath = baseFilePath.replaceAll('/', '_')
 
   const bucketFile = bucket.file(
-    `${project}/remote/${imageName}/${underscoredFilePath}/${imageName}.${imageMetadata.format}`
+    `${project.name}/remote/${imageName}/${underscoredFilePath}/${imageName}.${imageMetadata.format}`
   )
 
   const bucketFileWStream = bucketFile.createWriteStream()
@@ -81,13 +80,16 @@ const saveImageInBucket = async ({
   }
 }
 
-/** @param {ImageSchema} image */
-const getImageFromBucket = (image) => {
+/**
+ * @param {ImageSchema} image
+ * @param {ProjectSchema} project
+ **/
+const getImageFromBucket = (image, project) => {
   const storage = getStorage()
 
-  const bucket = storage.bucket('voidr_images_test')
+  const bucket = storage.bucket(project.bucket.name)
 
-  const bucketFile = bucket.file(image.originUrl)
+  const bucketFile = bucket.file(image.bucketFile)
 
   return bucketFile
 }

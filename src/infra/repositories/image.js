@@ -26,9 +26,19 @@ const getByOriginUrl = async (originUrl) => {
   return image
 }
 
+/**
+ * @param {string} id
+ * @param {ImageSchema} raw
+ */
+const update = async (id, raw) => {
+  const image = await Image.updateOne({ _id: id }, raw).exec()
+  return image
+}
+
 const imageRepository = {
   create,
   list,
+  update,
   getByOriginUrl,
 }
 export default imageRepository

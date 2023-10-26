@@ -27,7 +27,7 @@ router.post(
       name: body.name,
       bucket: {
         source: projectConfig.bucketSource.VOIDR,
-        name: body.name,
+        name: 'voidr',
       },
       domains: body.domains,
     })
