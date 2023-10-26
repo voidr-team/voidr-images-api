@@ -13,7 +13,7 @@ router.get(
 
     const originUrl = req.baseUrl + req.path
 
-    const [currentProject, existedImage] = Promise.all([
+    const [currentProject, existedImage] = await Promise.all([
       projectRepository.getByName(project),
       imageRepository.getByOriginUrl(originUrl),
     ])
