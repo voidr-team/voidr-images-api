@@ -107,7 +107,7 @@ router.get(
         remote,
         project,
       })
-      if (config.IS_LOCAL) {
+      if (config.IS_LOCAL || req.query.debug) {
         throw e
       }
       return res.redirect(remote)
