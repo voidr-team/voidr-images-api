@@ -6,6 +6,7 @@ import projectRepository from '#src/infra/repositories/project'
 import HttpException from '#src/domain/exceptions/HttpException'
 import logger from '#src/domain/logger'
 import config from '#src/config'
+import tryOrNull from '#src/utils/safeOperators/tryOrNull'
 const router = express.Router()
 
 router.get(
@@ -30,11 +31,9 @@ router.get(
           currentProject
         )
 
-        const [bucketFileExists] = await bucketFile.exists()
+        const fileRead = tryOrNull(() => bucketFile.createReadStream())
 
-        if (bucketFileExists) {
-          const fileRead = bucketFile.createReadStream()
-
+        if (fileRead) {
           let headers = {
             'Content-Type': `image/${existedImage.metadata.format}`,
           }
