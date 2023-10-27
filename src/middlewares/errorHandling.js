@@ -36,6 +36,6 @@ const errorHandling = (err, req, res, next) => {
 
   logger.error(err)
 
-  res.status(err.status || 500).json({ error: 'Internal server error' })
+  return res.status(err.status || 500).json({ error: 'Internal server error' })
 }
 export default errorHandling
