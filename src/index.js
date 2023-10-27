@@ -8,6 +8,7 @@ import routes from './routes'
 import morgan from 'morgan'
 import errorHandling from './middlewares/errorHandling'
 import logger from './domain/logger'
+import rewritePathForCDN from './middlewares/rewritePathForCDN'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -63,9 +64,7 @@ app.get('/health', async (req, res) => {
   return res.send('ok')
 })
 
-// app.use(authCheck)
-
-// app.use(authInjection)
+app.use(rewritePathForCDN)
 
 app.use('/v1/', routes)
 
