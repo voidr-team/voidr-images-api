@@ -4,8 +4,9 @@ import getIssuer from '#src/utils/request/getIssuer'
 import projectRepository from '#src/infra/repositories/project'
 import HttpException from '#src/domain/exceptions/HttpException'
 import { projectConfig } from '#src/models/Project/projectConfig'
-import { createProjectSchema } from './schema'
+import { createProjectSchema, updateProjectDomainsSchema } from './schema'
 import auth from '#src/middlewares/auth'
+import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 const router = express.Router()
 
 router.post(
@@ -23,14 +24,33 @@ router.post(
       )
     }
 
-    const createdProject = await projectRepository.create(issuer, {
+    const auth0Management = await auth0ManagementFactory()
+
+    const organizationResponse = await auth0Management.createOrganization({
       name: body.name,
-      bucket: {
-        source: projectConfig.bucketSource.VOIDR,
-        name: 'voidr',
-      },
-      domains: body.domains,
+      displayName: body.name,
     })
+
+    const organization = organizationResponse?.data
+
+    await auth0Management.addMembersToOrganization(organization.id, [
+      issuer.sub,
+    ])
+
+    const createdProject = await projectRepository.create(
+      {
+        organizationId: organization.id,
+        sub: issuer.sub,
+      },
+      {
+        name: body.name,
+        bucket: {
+          source: projectConfig.bucketSource.VOIDR,
+          name: 'voidr',
+        },
+        domains: body.domains,
+      }
+    )
 
     return res.json(createdProject)
   }
@@ -41,5 +61,20 @@ router.get('/projects', auth, async (req, res) => {
   const projects = await projectRepository.list(issuer)
   return res.json(projects)
 })
+
+router.put(
+  '/projects/:id/domains',
+  auth,
+  validateSchema(updateProjectDomainsSchema),
+  async (req, res) => {
+    const issuer = getIssuer(req)
+    const updatedProject = await projectRepository.updateDomains(
+      issuer,
+      req.params.id,
+      req.body.domains
+    )
+    return res.json(updatedProject)
+  }
+)
 
 export default router

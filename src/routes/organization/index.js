@@ -1,54 +1,11 @@
 import HttpException from '#src/domain/exceptions/HttpException'
 import express from 'express'
 const router = express.Router()
-import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 import organizationService from '#src/domain/services/organization'
 import organizationMembers from './members'
 import organizationInvites from './invites'
 import organizationRoles from './roles'
-import validateSchema from '#src/middlewares/validateSchema'
-import { createOrganizationSchema } from './schema'
-import getIssuer from '#src/utils/request/getIssuer'
 import auth from '#src/middlewares/auth'
-
-router.post(
-  '/organization',
-  auth,
-  validateSchema(createOrganizationSchema),
-  async (req, res) => {
-    const auth0Management = await auth0ManagementFactory()
-    const body = req.body
-
-    const issuer = getIssuer(req)
-
-    if (issuer.organizationId) {
-      throw new HttpException(422, 'users already in a organization')
-    }
-
-    const organizationResponse = await auth0Management.createOrganization({
-      name: body.name,
-      displayName: body.displayName,
-      branding: {
-        logoUrl: body.logo,
-      },
-    })
-
-    const organization = organizationResponse?.data
-
-    await auth0Management.addMembersToOrganization(organization.id, [
-      issuer.sub,
-    ])
-
-    return res.json({
-      name: organization.name,
-      id: organization.id,
-      displayName: organization.display_name,
-      branding: {
-        logoUrl: organization.branding?.logo_url,
-      },
-    })
-  }
-)
 
 router.get('/organization-by-name', auth, async (req, res) => {
   const name = req.query.name
