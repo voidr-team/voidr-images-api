@@ -19,8 +19,9 @@ const downloadImageBuffer = async (url) => {
       throw err
     })
     .then((response) => {
-      if (response.headers['Content-Type'].startsWith('image/'))
-        return response.data
+      const contentType =
+        response.headers['content-type'] || response.headers['Content-Type']
+      if (contentType.startsWith('image/')) return response.data
       else throw new HttpException(400, 'File is not an image')
     })
 }
