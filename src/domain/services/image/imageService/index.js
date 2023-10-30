@@ -8,6 +8,7 @@ import getStorage from '#src/utils/storage/getStorage'
 import sharp from 'sharp'
 import { ImageSchema } from '#src/models/Image'
 import { ProjectSchema } from '#src/models/Project'
+import config from '#src/config'
 /**
  * @param {string} remoteImg
  * @param {object} transformers
@@ -60,7 +61,11 @@ const saveImageInBucket = async ({
   const underscoredFilePath = baseFilePath.replaceAll('/', '_')
 
   const bucketFile = bucket.file(
-    `${project.name}/remote/${imageName}/${underscoredFilePath}/${imageName}.${imageMetadata.format}`
+    `${config.IS_LOCAL ? 'local/' : ''}${
+      project.name
+    }/remote/${imageName}/${underscoredFilePath}/${imageName}.${
+      imageMetadata.format
+    }`
   )
 
   const bucketFileWStream = bucketFile.createWriteStream()

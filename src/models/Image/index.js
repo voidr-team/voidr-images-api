@@ -23,6 +23,12 @@ export const Image = mongoose.model(
       },
       bucketFile: {
         type: String,
+        required: false,
+      },
+      status: {
+        type: String,
+        enum: Object.values(imageConfig.status),
+        default: imageConfig.status.PENDING,
         required: true,
       },
       metadata: Object,

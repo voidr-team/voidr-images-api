@@ -1,6 +1,6 @@
 const tryOrNull = (fn) => {
   try {
-    fn()
+    return fn()
   } catch (_) {
     return null
   }

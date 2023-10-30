@@ -7,15 +7,16 @@ import HttpException from '#src/domain/exceptions/HttpException'
 import logger from '#src/domain/logger'
 import config from '#src/config'
 import tryOrNull from '#src/utils/safeOperators/tryOrNull'
+import { imageConfig } from '#src/models/Image/imageConfig'
+import getImageNameFromUrl from '#src/utils/image/getImageNameFromUrl'
 const router = express.Router()
 
 router.get(
   '/images/:project/:transformers(*)/fetch/:remote(*)',
   async (req, res) => {
     const { transformers = '', remote, project } = req.params
+    const originUrl = req.baseUrl + req.path
     try {
-      const originUrl = req.baseUrl + req.path
-
       const [currentProject, existedImage] = await Promise.all([
         projectRepository.getByName(project),
         imageRepository.getByOriginUrl(originUrl),
@@ -25,22 +26,36 @@ router.get(
         throw new HttpException(404, `project "${project}" not found`)
       }
 
-      if (existedImage) {
+      if (
+        existedImage &&
+        existedImage.status === imageConfig.status.COMPLETED
+      ) {
         const bucketFile = imageService.getImageFromBucket(
           existedImage,
           currentProject
         )
 
-        const fileRead = tryOrNull(() => bucketFile.createReadStream())
+        const fileRead = bucketFile.createReadStream()
 
         if (fileRead) {
           let headers = {
             'Content-Type': `image/${existedImage.metadata.format}`,
             'Cache-Control': 'public, max-age=2592000',
           }
+          const responseFile = new Promise((resolve, reject) => {
+            res.status(200).set(headers)
+            fileRead
+              .on('error', () => {
+                resolve(false)
+              })
+              .pipe(res)
+              .on('end', () => {
+                resolve(true)
+              })
+          })
 
-          res.status(200).set(headers)
-          return fileRead.pipe(res)
+          const fileWasSent = await responseFile
+          if (fileWasSent) return
         }
       }
 
@@ -56,11 +71,35 @@ router.get(
         )
       }
 
+      let noCacheHeaders = {
+        'Cache-Control':
+          'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
+      }
+
+      // send response and process image in background
+      res.set(noCacheHeaders)
+      res.redirect(303, remote)
+
+      // Start processing image
       const parsedTransformers =
         transformerFormatters.formatFromParams(transformers)
 
       const transformPipeline =
         transformerFormatters.getTransformersPipeline(transformers)
+
+      const imageName = getImageNameFromUrl(remote)
+
+      const imagePendingProcessPayload = {
+        name: imageName,
+        remote,
+        transformers: parsedTransformers,
+        originUrl,
+        status: imageConfig.status.PENDING,
+      }
+
+      const pendingProcessImage =
+        existedImage ||
+        (await imageRepository.create(project, imagePendingProcessPayload))
 
       const { imageTransformer, rawImageMetadata, imageMetadata } =
         await imageService.executePipeline(
@@ -69,18 +108,13 @@ router.get(
           transformPipeline
         )
 
-      const { bucketFile, imageName } = await imageService.saveImageInBucket({
+      const { bucketFile } = await imageService.saveImageInBucket({
         imageTransformer,
         project: currentProject,
         remoteImageUrl: remote,
         baseFilePath: transformers,
         imageMetadata,
       })
-
-      let headers = {
-        'Content-Type': `image/${imageMetadata.format}`,
-        'Cache-Control': 'public, max-age=2592000',
-      }
 
       const imagePayload = {
         name: imageName,
@@ -90,17 +124,14 @@ router.get(
         metadata: imageMetadata,
         rawMetadata: rawImageMetadata,
         originUrl,
+        status: imageConfig.status.COMPLETED,
       }
 
-      if (existedImage) {
-        await imageRepository.update(existedImage.id, imagePayload)
+      if (pendingProcessImage._id) {
+        await imageRepository.update(pendingProcessImage._id, imagePayload)
       } else {
         await imageRepository.create(project, imagePayload)
       }
-
-      const fileRead = bucketFile.createReadStream()
-      res.status(200).set(headers)
-      fileRead.pipe(res)
     } catch (e) {
       logger.error('Failed to process image', {
         error: e,
@@ -108,10 +139,18 @@ router.get(
         remote,
         project,
       })
-      if (config.IS_LOCAL || req.query.debug) {
+
+      if (req.query.debug) {
         throw e
       }
-      return res.redirect(remote)
+
+      if (!res.headersSent) res.redirect(remote)
+
+      const failedImage = await imageRepository.getByOriginUrl(originUrl)
+      if (failedImage)
+        await imageRepository.update(failedImage._id, {
+          status: imageConfig.status.FAILED,
+        })
     }
   }
 )
