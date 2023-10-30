@@ -9,12 +9,14 @@ import config from '#src/config'
 import tryOrNull from '#src/utils/safeOperators/tryOrNull'
 import { imageConfig } from '#src/models/Image/imageConfig'
 import getImageNameFromUrl from '#src/utils/image/getImageNameFromUrl'
+import url from 'node:url'
 const router = express.Router()
 
 router.get(
   '/images/:project/:transformers(*)/fetch/:remote(*)',
   async (req, res) => {
-    const { transformers = '', remote, project } = req.params
+    const { transformers = '', remote: remoteBaseUrl, project } = req.params
+    const remote = `${remoteBaseUrl}${new URL(req.url).search}`
     const originUrl = req.baseUrl + req.path
     try {
       const [currentProject, existedImage] = await Promise.all([

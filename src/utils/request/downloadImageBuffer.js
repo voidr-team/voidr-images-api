@@ -1,3 +1,4 @@
+import HttpException from '#src/domain/exceptions/HttpException'
 import logger from '#src/domain/logger'
 import axios from 'axios'
 
@@ -17,7 +18,11 @@ const downloadImageBuffer = async (url) => {
       logger.error('Failed to download image', { url })
       throw err
     })
-    .then((response) => response.data)
+    .then((response) => {
+      if (response.headers['Content-Type'].startsWith('image/'))
+        return response.data
+      else throw new HttpException(400, 'File is not an image')
+    })
 }
 
 export default downloadImageBuffer
