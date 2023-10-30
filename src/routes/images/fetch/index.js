@@ -19,6 +19,12 @@ router.get(
       rawQueryStrings ? '?' + rawQueryStrings : ''
     }`
     const originUrl = req.baseUrl + req.path
+
+    let noCacheHeaders = {
+      'Cache-Control':
+        'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
+    }
+
     try {
       const [currentProject, existedImage] = await Promise.all([
         projectRepository.getByName(project),
@@ -29,6 +35,17 @@ router.get(
         throw new HttpException(404, `project "${project}" not found`)
       }
 
+      if (existedImage && existedImage.status === imageConfig.status.PENDING) {
+        logger.info('Image still processing', {
+          transformers,
+          remote,
+          originUrl,
+          project,
+        })
+        res.set(noCacheHeaders)
+        res.redirect(303, remote)
+        return
+      }
       if (
         existedImage &&
         existedImage.status === imageConfig.status.COMPLETED
@@ -97,11 +114,6 @@ router.get(
           422,
           `remote image url domain is not allowed in project "${project}"`
         )
-      }
-
-      let noCacheHeaders = {
-        'Cache-Control':
-          'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
       }
 
       // send response and process image in background
@@ -195,10 +207,6 @@ router.get(
       }
 
       if (!res.headersSent) {
-        let noCacheHeaders = {
-          'Cache-Control':
-            'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
-        }
         res.set(noCacheHeaders)
         res.redirect(remote)
       }
