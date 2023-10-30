@@ -36,6 +36,7 @@ router.get(
         if (fileRead) {
           let headers = {
             'Content-Type': `image/${existedImage.metadata.format}`,
+            'Cache-Control': 'public, max-age=2592000',
           }
 
           res.status(200).set(headers)
@@ -78,6 +79,7 @@ router.get(
 
       let headers = {
         'Content-Type': `image/${imageMetadata.format}`,
+        'Cache-Control': 'public, max-age=2592000',
       }
 
       const imagePayload = {
