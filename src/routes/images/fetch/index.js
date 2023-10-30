@@ -194,7 +194,14 @@ router.get(
         throw e
       }
 
-      if (!res.headersSent) res.redirect(remote)
+      if (!res.headersSent) {
+        let noCacheHeaders = {
+          'Cache-Control':
+            'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
+        }
+        res.set(noCacheHeaders)
+        res.redirect(remote)
+      }
 
       const failedImage = await imageRepository.getByOriginUrl(originUrl)
       if (failedImage)
