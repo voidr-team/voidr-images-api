@@ -18,7 +18,7 @@ const create = async (issuer, raw) => {
 /** @param {Issuer} issuer */
 const list = async (issuer) => {
   const projects = await Project.find({
-    'createdBy.organizationId': issuer.organizationId,
+    'createdBy.sub': issuer.sub,
   }).exec()
   return projects
 }

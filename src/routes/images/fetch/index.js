@@ -46,6 +46,7 @@ router.get(
         res.redirect(303, remote)
         return
       }
+
       if (
         existedImage &&
         existedImage.status === imageConfig.status.COMPLETED
