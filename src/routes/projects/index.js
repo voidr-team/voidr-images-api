@@ -49,6 +49,7 @@ router.post(
           name: 'voidr',
         },
         domains: body.domains,
+        members: [issuer.sub],
       }
     )
 

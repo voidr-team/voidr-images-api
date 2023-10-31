@@ -16,6 +16,7 @@ export const Project = mongoose.model(
           required: true,
         },
       ],
+      members: [{ type: String, required: true }],
       bucket: {
         source: {
           type: String,
