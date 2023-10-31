@@ -8,6 +8,6 @@ export default [
   userRoutes,
   organizationRoutes,
   projectsRouter,
-  imagesFetchRoutes,
   imagesRoutes,
+  imagesFetchRoutes,
 ]
