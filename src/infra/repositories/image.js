@@ -16,13 +16,15 @@ const create = async (project, raw) => {
 const list = async (project) => {
   const images = await Image.find({
     project,
-  }).exec()
+  })
+    .lean()
+    .exec()
   return images
 }
 
 /**  @param {string} originUrl */
 const getByOriginUrl = async (originUrl) => {
-  const image = await Image.findOne({ originUrl }).exec()
+  const image = await Image.findOne({ originUrl }).lean().exec()
   return image
 }
 
@@ -31,7 +33,11 @@ const getByOriginUrl = async (originUrl) => {
  * @param {ImageSchema} raw
  */
 const update = async (id, raw) => {
-  const image = await Image.updateOne({ _id: id }, raw).exec()
+  const image = await Image.findOneAndUpdate({ _id: id }, raw, {
+    new: true,
+  })
+    .lean()
+    .exec()
   return image
 }
 
@@ -40,6 +46,7 @@ const paginate = async (projectName, page = 1, limit = 10) => {
   const imagesQuery = Image.find({ project: projectName })
     .limit(limit)
     .skip((page - 1) * limit)
+    .lean()
     .exec()
 
   const [total, images] = await Promise.all([totalQuery, imagesQuery])
@@ -51,6 +58,11 @@ const paginate = async (projectName, page = 1, limit = 10) => {
     currentPage: Number(page),
   }
 }
+/** @param {string} id */
+const getById = async (id) => {
+  const image = await Image.findById(id).lean().exec()
+  return image
+}
 
 const imageRepository = {
   create,
@@ -58,5 +70,6 @@ const imageRepository = {
   update,
   getByOriginUrl,
   paginate,
+  getById,
 }
 export default imageRepository

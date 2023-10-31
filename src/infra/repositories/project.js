@@ -19,7 +19,9 @@ const create = async (issuer, raw) => {
 const list = async (issuer) => {
   const projects = await Project.find({
     members: issuer.sub,
-  }).exec()
+  })
+    .lean()
+    .exec()
   return projects
 }
 
@@ -31,7 +33,7 @@ const exists = async (projectName) => {
 
 /**  @param {string} projectName  */
 const getByName = async (projectName) => {
-  const project = await Project.findOne({ name: projectName }).exec()
+  const project = await Project.findOne({ name: projectName }).lean().exec()
   return project
 }
 
@@ -50,16 +52,19 @@ const updateDomains = async (issuer, id, domains) => {
       domains,
     },
     { new: true }
-  ).exec()
+  )
+    .lean()
+    .exec()
 
   return project
 }
 
 /** @param {string} orgId */
 const getByOrgId = async (orgId) => {
-  const project = (
-    await Project.findOne({ 'createdBy.organizationId': orgId })
-  ).toObject()
+  const project = await Project.findOne({ 'createdBy.organizationId': orgId })
+    .lean()
+    .exec()
+
   return project
 }
 

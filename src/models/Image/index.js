@@ -34,6 +34,8 @@ export const Image = mongoose.model(
       metadata: Object,
       rawMetadata: Object,
       transformers: Object,
+      transformPipeline: [String],
+      task: String,
     },
     {
       timestamps: true,

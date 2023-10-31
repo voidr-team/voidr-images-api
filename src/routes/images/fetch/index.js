@@ -93,7 +93,7 @@ router.get(
             return
           } else {
             logger.info(
-              'Image found on db but not on bucket, will start background process',
+              'Image found on db but not on bucket, will start process',
               {
                 transformers,
                 remote,
@@ -117,17 +117,6 @@ router.get(
         )
       }
 
-      // send response and process image in background
-      res.set(noCacheHeaders)
-      res.redirect(303, remote)
-
-      logger.info('Start background processing', {
-        transformers,
-        remote,
-        originUrl,
-        project,
-      })
-      // Start processing image
       const parsedTransformers =
         transformerFormatters.formatFromParams(transformers)
 
@@ -136,12 +125,20 @@ router.get(
 
       const imageName = getImageNameFromUrl(remote)
 
+      logger.info('Start processing', {
+        transformers,
+        remote,
+        originUrl,
+        project,
+      })
+
       const imagePendingProcessPayload = {
         name: imageName,
         remote,
         transformers: parsedTransformers,
         originUrl,
         status: imageConfig.status.PENDING,
+        transformPipeline,
       }
 
       const pendingProcessImage =
@@ -187,13 +184,22 @@ router.get(
         await imageRepository.create(project, imagePayload)
       }
 
-      logger.info('Finish background processing', {
+      logger.info('Finish processing', {
         transformers,
         remote,
         originUrl,
         project,
         imageId: pendingProcessImage._id,
       })
+
+      let headers = {
+        'Content-Type': `image/${imageMetadata.format}`,
+        'Cache-Control': 'public, max-age=2592000',
+      }
+
+      const fileRead = bucketFile.createReadStream()
+      res.status(200).set(headers)
+      return fileRead.pipe(res)
     } catch (e) {
       logger.error('Failed to process image', {
         error: e,
@@ -209,7 +215,7 @@ router.get(
 
       if (!res.headersSent) {
         res.set(noCacheHeaders)
-        res.redirect(remote)
+        res.redirect(303, remote)
       }
 
       const failedImage = await imageRepository.getByOriginUrl(originUrl)

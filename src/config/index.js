@@ -22,6 +22,9 @@ const config = {
     TOKEN: 'wLrwxhNntYoAkUU34ejR7owi',
   },
   ENCRYPT_SECRET: process.env.ENCRYPT_SECRET,
+  GOOGLE_CLOUD: {
+    PROJECT_ID: 'perceptive-bay-340802',
+  },
 }
 
 export default config

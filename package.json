@@ -31,6 +31,7 @@
   "license": "ISC",
   "dependencies": {
     "@google-cloud/storage": "7.3.0",
+    "@google-cloud/tasks": "^4.0.1",
     "@logtail/node": "0.4.12",
     "@logtail/winston": "0.4.12",
     "axios": "1.4.0",
