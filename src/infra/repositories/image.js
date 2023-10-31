@@ -35,10 +35,28 @@ const update = async (id, raw) => {
   return image
 }
 
+const paginate = async (projectName, page = 1, limit = 10) => {
+  const totalQuery = Image.countDocuments()
+  const imagesQuery = Image.find({ project: projectName })
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .exec()
+
+  const [total, images] = await Promise.all([totalQuery, imagesQuery])
+
+  return {
+    total,
+    images,
+    pages: Math.ceil(total / Number(limit)),
+    currentPage: Number(page),
+  }
+}
+
 const imageRepository = {
   create,
   list,
   update,
   getByOriginUrl,
+  paginate,
 }
 export default imageRepository

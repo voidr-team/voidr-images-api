@@ -55,12 +55,21 @@ const updateDomains = async (issuer, id, domains) => {
   return project
 }
 
+/** @param {string} orgId */
+const getByOrgId = async (orgId) => {
+  const project = (
+    await Project.findOne({ 'createdBy.organizationId': orgId })
+  ).toObject()
+  return project
+}
+
 const projectRepository = {
   create,
   list,
   exists,
   getByName,
   updateDomains,
+  getByOrgId,
 }
 
 export default projectRepository
