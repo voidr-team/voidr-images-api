@@ -17,7 +17,10 @@ router.get('/user/info', auth, async (req, res) => {
     organization,
     roles,
     sub,
-    projects: projects.map((project) => project.name),
+    projects: projects.map((project) => ({
+      id: project._id,
+      name: project.name,
+    })),
     ...user,
   })
 })
