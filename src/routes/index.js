@@ -6,6 +6,7 @@ import imageProcessRoutes from './images/process'
 import imageRelativesRoutes from './images/relatives'
 import projectsRouter from './projects'
 import dashboardRouter from './dashboard'
+import usageRouter from './usage'
 
 export default [
   userRoutes,
@@ -16,4 +17,5 @@ export default [
   imageRelativesRoutes,
   imageProcessRoutes,
   imagesFetchRoutes,
+  usageRouter,
 ]
