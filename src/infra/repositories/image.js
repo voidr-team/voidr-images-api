@@ -42,7 +42,7 @@ const update = async (id, raw) => {
 }
 
 const paginate = async (projectName, page = 1, limit = 10) => {
-  const totalQuery = Image.countDocuments()
+  const totalQuery = Image.countDocuments({ project: projectName })
   const imagesQuery = Image.find({ project: projectName })
     .limit(limit)
     .skip((page - 1) * limit)
@@ -58,10 +58,109 @@ const paginate = async (projectName, page = 1, limit = 10) => {
     currentPage: Number(page),
   }
 }
-/** @param {string} id */
+/**
+ * @param {string} id
+ **/
 const getById = async (id) => {
-  const image = await Image.findById(id).lean().exec()
+  const image = await Image.findById(id)
+    .lean()
+    .exec()
+    .catch(() => null)
   return image
+}
+
+/**  @param {ImageSchema} image */
+const getRelativeImages = async (image) => {
+  const relatives = await Image.find({
+    _id: { $ne: image._id },
+    name: image.name,
+  })
+    .lean()
+    .exec()
+
+  return relatives
+}
+
+/** @param {string} projectName */
+const countPerDay = async (projectName) => {
+  const result = await Image.aggregate([
+    {
+      $match: {
+        project: projectName,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          year: { $year: '$createdAt' },
+          month: { $month: '$createdAt' },
+          day: { $dayOfMonth: '$createdAt' },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: {
+        '_id.year': 1,
+        '_id.month': 1,
+        '_id.day': 1,
+      },
+    },
+    {
+      $project: {
+        date: {
+          $dateFromParts: {
+            year: '$_id.year',
+            month: '$_id.month',
+            day: '$_id.day',
+          },
+        },
+        count: 1,
+        _id: 0,
+      },
+    },
+  ]).exec()
+
+  return result
+}
+/**
+ * @param {string} projectName
+ * @returns {number}
+ */
+const bytesSaved = async (projectName) => {
+  const result = await Image.aggregate([
+    {
+      $match: {
+        project: projectName,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalBytesSaved: {
+          $sum: {
+            $subtract: ['$rawMetadata.size', '$metadata.size'],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalBytesSaved: 1,
+      },
+    },
+  ])
+
+  return result[0]?.totalBytesSaved || 0
+}
+
+/**
+ * @param {string} projectName
+ */
+const countByProject = async (projectName) => {
+  const total = await Image.countDocuments({ project: projectName })
+  return total
 }
 
 const imageRepository = {
@@ -71,5 +170,9 @@ const imageRepository = {
   getByOriginUrl,
   paginate,
   getById,
+  getRelativeImages,
+  countPerDay,
+  bytesSaved,
+  countByProject,
 }
 export default imageRepository
