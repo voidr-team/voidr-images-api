@@ -9,6 +9,12 @@ import auth from '#src/middlewares/auth'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 const router = express.Router()
 
+router.get('/projects', auth, async (req, res) => {
+  const issuer = getIssuer(req)
+  const project = await projectRepository.getByOrgId(issuer.organizationId)
+  return res.json(project)
+})
+
 router.post(
   '/projects',
   auth,
@@ -74,14 +80,13 @@ router.get('/projects', auth, async (req, res) => {
 })
 
 router.put(
-  '/projects/:id/domains',
+  '/projects/domains',
   auth,
   validateSchema(updateProjectDomainsSchema),
   async (req, res) => {
     const issuer = getIssuer(req)
     const updatedProject = await projectRepository.updateDomains(
       issuer,
-      req.params.id,
       req.body.domains
     )
     return res.json(updatedProject)

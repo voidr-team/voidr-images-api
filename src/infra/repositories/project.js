@@ -42,10 +42,9 @@ const getByName = async (projectName) => {
  * @param {id} id
  * @param {string[]} domains
  */
-const updateDomains = async (issuer, id, domains) => {
+const updateDomains = async (issuer, domains) => {
   const project = await Project.findOneAndUpdate(
     {
-      _id: id,
       'createdBy.organizationId': issuer.organizationId,
     },
     {
