@@ -90,19 +90,28 @@ const saveImageInBucket = async ({
  * @param {ProjectSchema} project
  **/
 const getImageFromBucket = (image, project) => {
-  const storage = getStorage()
-
-  const bucket = storage.bucket(project.bucket.name)
+  const bucket = getBucketFromProject(project)
 
   const bucketFile = bucket.file(image.bucketFile)
 
   return bucketFile
+}
+/**
+ * @param {ProjectSchema} project
+ **/
+const getBucketFromProject = (project) => {
+  const storage = getStorage()
+
+  const bucket = storage.bucket(project.bucket.name)
+
+  return bucket
 }
 
 const imageService = {
   executePipeline,
   saveImageInBucket,
   getImageFromBucket,
+  getBucketFromProject,
 }
 
 export default imageService

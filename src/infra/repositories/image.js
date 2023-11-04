@@ -44,6 +44,7 @@ const update = async (id, raw) => {
 const paginate = async (projectName, page = 1, limit = 10) => {
   const totalQuery = Image.countDocuments({ project: projectName })
   const imagesQuery = Image.find({ project: projectName })
+    .sort({ createdAt: -1 })
     .limit(limit)
     .skip((page - 1) * limit)
     .lean()
