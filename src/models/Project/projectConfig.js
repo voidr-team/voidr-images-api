@@ -5,4 +5,8 @@ export const projectConfig = {
     GCS: 'GCS',
     VOIDR: 'VOIDR',
   },
+  plans: {
+    FREE: 'FREE',
+    PRO: 'PRO',
+  },
 }

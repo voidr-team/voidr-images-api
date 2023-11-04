@@ -9,6 +9,7 @@ import morgan from 'morgan'
 import errorHandling from './middlewares/errorHandling'
 import logger from './domain/logger'
 import rewritePathForCDN from './middlewares/rewritePathForCDN'
+import stripeWebhook from './routes/webhook/stripe'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -23,7 +24,16 @@ mongoose
 
 app.use(helmet({ crossOriginResourcePolicy: false }))
 app.use(cors({ origin: '*' }))
-app.use(express.json())
+
+app.use(
+  express.json({
+    verify: function (req, res, buf) {
+      if (/stripe/.test(req.originalUrl) && /webhook/.test(req.originalUrl)) {
+        req.rawBody = buf.toString()
+      }
+    },
+  })
+)
 
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 

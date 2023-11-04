@@ -34,6 +34,12 @@ export const Project = mongoose.model(
         type: CreatedBySchema,
         required: true,
       },
+      plan: {
+        type: String,
+        enum: Object.values(projectConfig.plans),
+        default: projectConfig.plans.FREE,
+        required: true,
+      },
     },
     {
       timestamps: true,

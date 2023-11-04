@@ -7,6 +7,9 @@ import { projectConfig } from '#src/models/Project/projectConfig'
 import { createProjectSchema, updateProjectDomainsSchema } from './schema'
 import auth from '#src/middlewares/auth'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
+import stripe from '#src/infra/providers/Stripe'
+import config from '#src/config'
+
 const router = express.Router()
 
 router.get('/projects', auth, async (req, res) => {
@@ -92,5 +95,30 @@ router.put(
     return res.json(updatedProject)
   }
 )
+
+router.post('/projects/plan/upgrade', auth, async (req, res) => {
+  const issuer = getIssuer(req)
+  const project = await projectRepository.getByOrgId(issuer.organizationId)
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        price: config.STRIPE.PRO_PLAN,
+        quantity: 1,
+      },
+    ],
+    mode: 'subscription',
+    success_url: `${config.APP_URL}common/plans?checkout=completed`,
+    metadata: {
+      projectId: String(project._id),
+      name: project.name,
+    },
+  })
+
+  return res.json({
+    sessionUrl: session.url,
+  })
+})
 
 export default router

@@ -5,6 +5,7 @@ const config = {
     URI: process.env.MONGODB_URI,
   },
   API_KEY: process.env.API_KEY,
+  APP_URL: process.env.APP_URL,
   NODE_ENV: process.env.NODE_ENV,
   IS_LOCAL: process.env.NODE_ENV === 'local',
   AUTH: {
@@ -24,6 +25,12 @@ const config = {
   ENCRYPT_SECRET: process.env.ENCRYPT_SECRET,
   GOOGLE_CLOUD: {
     PROJECT_ID: 'perceptive-bay-340802',
+  },
+  STRIPE: {
+    PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,
+    PRIVATE_KEY: process.env.STRIPE_PRIVATE_KEY,
+    PRO_PLAN: process.env.STRIPE_PRO_PLAN,
+    WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
   },
 }
 

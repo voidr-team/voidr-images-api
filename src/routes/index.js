@@ -7,6 +7,7 @@ import imageRelativesRoutes from './images/relatives'
 import projectsRouter from './projects'
 import dashboardRouter from './dashboard'
 import usageRouter from './usage'
+import webhookStripeRoutes from './webhook/stripe'
 
 export default [
   userRoutes,
@@ -18,4 +19,5 @@ export default [
   imageProcessRoutes,
   imagesFetchRoutes,
   usageRouter,
+  webhookStripeRoutes,
 ]
