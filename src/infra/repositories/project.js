@@ -68,6 +68,21 @@ const getByOrgId = async (orgId) => {
   return project
 }
 
+const addMember = async (id, member) => {
+  const updatedProject = await Project.findOneAndUpdate(
+    { _id: id },
+    {
+      $push: {
+        members: member,
+      },
+    },
+    { new: true }
+  )
+    .lean()
+    .exec()
+  return updatedProject
+}
+
 const projectRepository = {
   create,
   list,
@@ -75,6 +90,7 @@ const projectRepository = {
   getByName,
   updateDomains,
   getByOrgId,
+  addMember,
 }
 
 export default projectRepository

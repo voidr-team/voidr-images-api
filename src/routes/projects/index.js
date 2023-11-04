@@ -57,6 +57,16 @@ router.post(
   }
 )
 
+router.post('/projects/join', auth, async (req, res) => {
+  const issuer = getIssuer(req)
+  const project = await projectRepository.getByOrgId(issuer.organizationId)
+  if (project.members.includes(issuer.sub)) {
+    return res.status(200).send()
+  }
+  await projectRepository.addMember(project._id, issuer.sub)
+  return res.status(201).send()
+})
+
 router.get('/projects', auth, async (req, res) => {
   const issuer = getIssuer(req)
   const projects = await projectRepository.list(issuer)
