@@ -14,10 +14,23 @@ router.post('/webhook/stripe', async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret)
     switch (event.type) {
+      case 'checkout.session.async_payment_succeeded':
       case 'checkout.session.completed': {
         const checkoutSessionCompleted = event.data.object
         const projectId = checkoutSessionCompleted.metadata?.projectId
-        await projectRepository.updatePlan(projectId, projectConfig.plans.PRO)
+
+        if (
+          checkoutSessionCompleted.payment_status === 'paid' &&
+          checkoutSessionCompleted.status === 'complete'
+        ) {
+          await projectRepository.updatePlan(projectId, projectConfig.plans.PRO)
+          logger.info('subscription confirmed', { projectId })
+        } else {
+          logger.error('subscription failed', {
+            projectId,
+            checkoutSessionCompleted,
+          })
+        }
       }
     }
   } catch (err) {
