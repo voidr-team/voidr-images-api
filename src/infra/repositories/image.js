@@ -77,7 +77,6 @@ const getById = async (id) => {
  **/
 const getRelativeImages = async (image, project) => {
   const relatives = await Image.find({
-    _id: { $ne: image._id },
     name: image.name,
     project: project.name,
   })
