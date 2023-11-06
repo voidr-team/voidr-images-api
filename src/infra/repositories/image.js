@@ -1,4 +1,5 @@
 import { Image, ImageSchema } from '#models/Image'
+import { ProjectSchema } from '#src/models/Project'
 
 /**
  * @param {Issuer} issuer
@@ -70,11 +71,15 @@ const getById = async (id) => {
   return image
 }
 
-/**  @param {ImageSchema} image */
-const getRelativeImages = async (image) => {
+/**
+ * @param {ImageSchema} image
+ * @param {ProjectSchema} project
+ **/
+const getRelativeImages = async (image, project) => {
   const relatives = await Image.find({
     _id: { $ne: image._id },
     name: image.name,
+    project: project.name,
   })
     .lean()
     .exec()

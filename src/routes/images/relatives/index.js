@@ -20,7 +20,10 @@ router.get('/images/:id/relatives', auth, async (req, res) => {
     throw new HttpException(404, 'Image not found in project')
   }
 
-  const relativeImages = await imageRepository.getRelativeImages(referenceImage)
+  const relativeImages = await imageRepository.getRelativeImages(
+    referenceImage,
+    currentAuthProject
+  )
 
   return res.json(relativeImages)
 })
