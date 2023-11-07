@@ -106,8 +106,9 @@ router.get(
       }
 
       const allowAllDomains = currentProject.domains.includes('*')
-      const isAllowedDomain = currentProject.domains.find((domain) =>
-        remote.startsWith(domain)
+      const isAllowedDomain = currentProject.domains.find(
+        (domain) =>
+          remote.startsWith(domain) || remote.startsWith('https://api.voidr.co')
       )
 
       if (!allowAllDomains && !isAllowedDomain) {
