@@ -56,7 +56,7 @@ export class ImageTransform {
   resize = this.declareExecution(async (transformers) => {
     const { resize } = transformers
     const { width, height } = resize
-    const defaultFit = width && height ? 'fill' : 'cover'
+    const defaultFit = 'cover'
     const fit = resize.fit || defaultFit
     const resizedImage = await this.sharpChain
       .resize(width, height, {
