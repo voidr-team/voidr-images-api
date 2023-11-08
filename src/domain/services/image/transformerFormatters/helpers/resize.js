@@ -1,11 +1,25 @@
 import HttpException from '#src/domain/exceptions/HttpException'
+import getOptionalArguments from './getOptionalArguments'
+
+const optionalArgumentsValidatorMap = {
+  fit: (argValue) => {
+    const availableFitMap = ['contain', 'cover', 'fill', 'inside', 'outside']
+    if (!availableFitMap.includes(argValue)) {
+      throw new HttpException(
+        422,
+        `unknown resize argument "fit" value "${argValue}"`
+      )
+    }
+    return argValue
+  },
+}
 
 export default (resizeValue) => {
   if (!resizeValue) {
     throw new HttpException(422, `invalid crop value "${resizeValue}"`)
   }
-
-  const resizes = resizeValue.split('x')
+  const [resizesWxH] = resizeValue.split(',')
+  const resizes = resizesWxH.split('x')
   const [widthStr, heightStr] = resizes
   const width = widthStr ? Number(widthStr) : undefined
   const height = heightStr ? Number(heightStr) : undefined
@@ -21,8 +35,15 @@ export default (resizeValue) => {
     )
   }
 
+  const optionalArguments = getOptionalArguments(
+    optionalArgumentsValidatorMap,
+    resizeValue,
+    'resize'
+  )
+
   return {
     width,
     height,
+    fit: optionalArguments.fit,
   }
 }
