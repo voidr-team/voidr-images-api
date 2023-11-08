@@ -10,6 +10,7 @@ import getImageNameFromUrl from '#src/utils/image/getImageNameFromUrl'
 import url from 'node:url'
 import projectService from '#src/domain/services/project'
 import { projectConfig } from '#src/models/Project/projectConfig'
+import isValidHttpUrl from '#src/utils/string/isValidHttpUrl'
 const router = express.Router()
 
 router.get(
@@ -227,7 +228,12 @@ router.get(
 
       if (!res.headersSent) {
         res.set(noCacheHeaders)
-        res.redirect(303, remote)
+        if (isValidHttpUrl(remote)) {
+          res.redirect(303, remote)
+        } else {
+          res.send(404).send()
+          return
+        }
       }
 
       // free quota limit
