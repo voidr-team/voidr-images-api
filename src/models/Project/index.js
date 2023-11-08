@@ -40,6 +40,11 @@ export const Project = mongoose.model(
         default: projectConfig.plans.FREE,
         required: true,
       },
+      freePlanExpired: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
     },
     {
       timestamps: true,

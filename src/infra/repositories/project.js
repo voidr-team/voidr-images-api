@@ -106,12 +106,25 @@ const updatePlan = async (id, plan) => {
   return updateProject
 }
 
+/**
+ * @param {string} id
+ */
+const updateFreePlanExpired = async (id) => {
+  const updateProject = await Project.findByIdAndUpdate(
+    id,
+    { freePlanExpired: true },
+    { new: true }
+  )
+  return updateProject
+}
+
 const projectRepository = {
   create,
   list,
   exists,
   getByName,
   updateDomains,
+  updateFreePlanExpired,
   getByOrgId,
   addMember,
   getById,

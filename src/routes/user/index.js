@@ -22,6 +22,7 @@ router.get('/user/info', auth, async (req, res) => {
       name: project.name,
       organizationId: project.createdBy.organizationId,
       plan: project.plan,
+      freePlanExpired: project.freePlanExpired,
     })),
     ...user,
   })

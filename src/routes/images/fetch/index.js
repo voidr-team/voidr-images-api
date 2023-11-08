@@ -8,6 +8,8 @@ import logger from '#src/domain/logger'
 import { imageConfig } from '#src/models/Image/imageConfig'
 import getImageNameFromUrl from '#src/utils/image/getImageNameFromUrl'
 import url from 'node:url'
+import projectService from '#src/domain/services/project'
+import { projectConfig } from '#src/models/Project/projectConfig'
 const router = express.Router()
 
 router.get(
@@ -33,6 +35,13 @@ router.get(
 
       if (!currentProject) {
         throw new HttpException(404, `project "${project}" not found`)
+      }
+
+      if (
+        currentProject.plan === projectConfig.plans &&
+        currentProject.freePlanExpired
+      ) {
+        throw new HttpException(429, 'free quota utilization exceeded')
       }
 
       if (existedImage && existedImage.status === imageConfig.status.PENDING) {
@@ -198,11 +207,13 @@ router.get(
         'Cache-Control': 'public, max-age=2592000',
       }
 
+      await projectService.updateFreeTrialUtilization(currentProject)
+
       const fileRead = bucketFile.createReadStream()
       res.status(200).set(headers)
       return fileRead.pipe(res)
     } catch (e) {
-      logger.error('Failed to process image', {
+      logger.error(e.message || 'Failed to process image', {
         error: e,
         transformers,
         remote,
@@ -217,6 +228,11 @@ router.get(
       if (!res.headersSent) {
         res.set(noCacheHeaders)
         res.redirect(303, remote)
+      }
+
+      // free quota limit
+      if (e.status === 429) {
+        return
       }
 
       const failedImage = await imageRepository.getByOriginUrl(originUrl)
