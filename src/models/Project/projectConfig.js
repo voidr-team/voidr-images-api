@@ -8,5 +8,6 @@ export const projectConfig = {
   plans: {
     FREE: 'FREE',
     PRO: 'PRO',
+    ENTERPRISE: 'ENTERPRISE',
   },
 }

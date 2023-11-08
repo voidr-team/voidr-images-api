@@ -9,6 +9,7 @@ import auth from '#src/middlewares/auth'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 import stripe from '#src/infra/providers/Stripe'
 import config from '#src/config'
+import axios from 'axios'
 
 const router = express.Router()
 
@@ -119,6 +120,28 @@ router.post('/projects/plan/upgrade', auth, async (req, res) => {
   return res.json({
     sessionUrl: session.url,
   })
+})
+
+router.post('/projects/plan/enterprise', auth, async (req, res) => {
+  const payload = req.auth.payload
+
+  const { organization, sub, user } = payload
+
+  axios.post(
+    'https://discord.com/api/webhooks/1171824371510280253/dIIkKFgFUUjiD2GQ5XR1JcTaLLkWxIF8MV2CazAQVpdTqUg99h_P0jT3SvkcBsXYg0dZ',
+    {
+      content: `Novo lead voidr enterpise!!
+
+name:  ${user?.name}
+email: ${user?.email}
+id:    ${sub}
+organization: ${organization?.name}
+---------
+`,
+    }
+  )
+
+  return res.status(200).send()
 })
 
 export default router
