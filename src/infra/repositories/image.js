@@ -1,4 +1,5 @@
 import { Image, ImageSchema } from '#models/Image'
+import { imageConfig } from '#src/models/Image/imageConfig'
 import { ProjectSchema } from '#src/models/Project'
 
 /**
@@ -43,8 +44,14 @@ const update = async (id, raw) => {
 }
 
 const paginate = async (projectName, page = 1, limit = 10) => {
-  const totalQuery = Image.countDocuments({ project: projectName })
-  const imagesQuery = Image.find({ project: projectName })
+  const totalQuery = Image.countDocuments({
+    project: projectName,
+    status: { $ne: imageConfig.status.FAILED },
+  })
+  const imagesQuery = Image.find({
+    project: projectName,
+    status: { $ne: imageConfig.status.FAILED },
+  })
     .sort({ createdAt: -1 })
     .limit(limit)
     .skip((page - 1) * limit)
