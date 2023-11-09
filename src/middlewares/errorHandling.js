@@ -30,7 +30,7 @@ const errorHandling = (err, req, res, next) => {
   }
 
   if (err.status === 401) {
-    logger.error(err)
+    logger.warn(err)
     return res.status(err.status).json({ error: 'Unauthorized' })
   }
 
