@@ -95,12 +95,12 @@ const getById = async (id) => {
 
 /**
  * @param {string} id
- * @param {projectConfig.plans} plan
+ * @param {{ plan: projectConfig.plans, subscription: string, customer: string }} plan
  */
-const updatePlan = async (id, plan) => {
+const updatePlan = async (id, { plan, subscription, customer }) => {
   const updateProject = await Project.findByIdAndUpdate(
     id,
-    { plan },
+    { plan, subscription, customer },
     { new: true }
   )
   return updateProject
@@ -118,6 +118,15 @@ const updateFreePlanExpired = async (id) => {
   return updateProject
 }
 
+const listProPlan = async () => {
+  const proPlanProjects = await Project.find({
+    plan: projectConfig.plans.PRO,
+  })
+    .lean()
+    .exec()
+  return proPlanProjects
+}
+
 const projectRepository = {
   create,
   list,
@@ -129,6 +138,7 @@ const projectRepository = {
   addMember,
   getById,
   updatePlan,
+  listProPlan,
 }
 
 export default projectRepository

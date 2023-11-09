@@ -8,6 +8,7 @@ import projectsRouter from './projects'
 import dashboardRouter from './dashboard'
 import usageRouter from './usage'
 import webhookStripeRoutes from './webhook/stripe'
+import cronBillingRoutes from './cron/billing'
 
 export default [
   userRoutes,
@@ -20,4 +21,5 @@ export default [
   imagesFetchRoutes,
   usageRouter,
   webhookStripeRoutes,
+  cronBillingRoutes,
 ]

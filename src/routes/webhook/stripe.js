@@ -18,12 +18,19 @@ router.post('/webhook/stripe', async (req, res) => {
       case 'checkout.session.completed': {
         const checkoutSessionCompleted = event.data.object
         const projectId = checkoutSessionCompleted.metadata?.projectId
+        const subscriptionId = event.data.object.subscription
+        const customer = event.data.object.customer
 
         if (
           checkoutSessionCompleted.payment_status === 'paid' &&
-          checkoutSessionCompleted.status === 'complete'
+          checkoutSessionCompleted.status === 'complete' &&
+          subscriptionId
         ) {
-          await projectRepository.updatePlan(projectId, projectConfig.plans.PRO)
+          await projectRepository.updatePlan(projectId, {
+            plan: projectConfig.plans.PRO,
+            subscription: subscriptionId,
+            customer,
+          })
           logger.info('subscription confirmed', { projectId })
         } else {
           logger.error('subscription failed', {
