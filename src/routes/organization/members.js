@@ -13,10 +13,12 @@ router.get('/organization/members', auth, async (req, res) => {
 
   const members = await auth0Management.getOrganizationMembersWithRoles(orgId)
 
-  const mappedMembers = members.map(({ user_id, ...member }) => ({
-    sub: user_id,
-    ...member,
-  }))
+  const mappedMembers = members
+    .map(({ user_id, ...member }) => ({
+      sub: user_id,
+      ...member,
+    }))
+    .filter((member) => !member.email.includes('@voidr.co'))
 
   return res.json(mappedMembers)
 })
