@@ -73,6 +73,9 @@ app.use(morganMiddleware)
 app.get('/health', async (req, res) => {
   return res.send('ok')
 })
+app.get('/favicon.ico', async (req, res) => {
+  return res.send('')
+})
 
 app.use(rewritePathForCDN)
 
