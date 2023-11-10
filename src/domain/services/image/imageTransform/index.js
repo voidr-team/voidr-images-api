@@ -70,7 +70,7 @@ export class ImageTransform {
 
   compress = this.declareExecution((transformers) => {
     const availableFormats = ['jpeg', 'png', 'webp', 'gif', 'tiff', 'avif']
-    const format = transformers?.convert?.format
+    const format = transformers?.convert?.format || 'webp'
     const quality =
       transformers?.compress?.quality === 'smart'
         ? 90
