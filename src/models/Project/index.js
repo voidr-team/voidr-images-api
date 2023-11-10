@@ -42,10 +42,17 @@ export const Project = mongoose.model(
       },
       subscription: String,
       customer: String,
-      freePlanExpired: {
-        type: Boolean,
-        required: true,
-        default: false,
+      freePlan: {
+        expired: {
+          type: Boolean,
+          required: true,
+          default: false,
+        },
+        usageLimit: {
+          type: String,
+          required: true,
+          default: 1000,
+        },
       },
     },
     {

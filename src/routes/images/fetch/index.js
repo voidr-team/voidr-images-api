@@ -40,7 +40,7 @@ router.get(
 
       if (
         currentProject.plan === projectConfig.plans &&
-        currentProject.freePlanExpired
+        currentProject.freePlan?.expired
       ) {
         throw new HttpException(429, 'free quota utilization exceeded')
       }

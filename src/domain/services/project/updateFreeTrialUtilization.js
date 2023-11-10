@@ -10,7 +10,8 @@ const updateFreeTrialUtilization = async (project) => {
   if (project.plan !== projectConfig.plans.FREE) return
 
   const imagesQnty = await imageRepository.countByProject(project.name)
-  if (imagesQnty > 1000) {
+  const usageLimit = project.freePlan?.usageLimit || 1000
+  if (imagesQnty > usageLimit) {
     await projectRepository.updateFreePlanExpired(project._id)
   }
 }

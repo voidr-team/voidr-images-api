@@ -112,7 +112,7 @@ const updatePlan = async (id, { plan, subscription, customer }) => {
 const updateFreePlanExpired = async (id) => {
   const updateProject = await Project.findByIdAndUpdate(
     id,
-    { freePlanExpired: true },
+    { 'freePlan.expired': true },
     { new: true }
   )
   return updateProject
