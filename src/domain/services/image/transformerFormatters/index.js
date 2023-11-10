@@ -60,15 +60,20 @@ const formatFromParams = (transformersString) => {
 }
 
 const getTransformersPipeline = (transformersString) => {
-  const keyWords = splitParams(transformersString)
-    .map((param) => {
-      const [keyword] = param.split(':')
-      return keyword
-    })
-    // compress and convert are the same task
-    .filter((keyword) => !['compress', 'convert'].includes(keyword))
+  const keyWords = splitParams(transformersString).map((param) => {
+    const [keyword] = param.split(':')
+    return keyword
+  })
 
-  // compress needs to run first and it will always run
+  // compress and convert are the same task
+  if (keyWords.includes('compress') || keyWords.includes('convert')) {
+    const othersTransformers = keyWords.filter(
+      (keyword) => !['compress', 'convert'].includes(keyword)
+    )
+    // compress needs to run first
+    return [...othersTransformers]
+  }
+
   return ['compress', ...keyWords]
 }
 
