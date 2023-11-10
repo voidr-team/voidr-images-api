@@ -60,7 +60,7 @@ const formatFromParams = (transformersString) => {
 }
 
 const getTransformersPipeline = (transformersString) => {
-  const keyWords = splitParams(transformersString).map((param) => {
+  let keyWords = splitParams(transformersString).map((param) => {
     const [keyword] = param.split(':')
     return keyword
   })
@@ -71,7 +71,15 @@ const getTransformersPipeline = (transformersString) => {
       (keyword) => !['compress', 'convert'].includes(keyword)
     )
     // compress needs to run first
-    return ['compress', ...othersTransformers]
+    keyWords = ['compress', ...othersTransformers]
+  }
+
+  if (keyWords.includes('radius')) {
+    const othersTransformers = keyWords.filter(
+      (keyword) => !['radius'].includes(keyword)
+    )
+    // radius needs to run last!
+    keyWords = [...othersTransformers, 'radius']
   }
 
   return [...keyWords]
