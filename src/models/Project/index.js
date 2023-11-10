@@ -49,7 +49,7 @@ export const Project = mongoose.model(
           default: false,
         },
         usageLimit: {
-          type: String,
+          type: Number,
           required: true,
           default: 1000,
         },
