@@ -52,7 +52,7 @@ export default (cropValue) => {
   const width = widthStr ? Number(widthStr) : undefined
   const height = heightStr ? Number(heightStr) : undefined
 
-  const isNaNSafety = (n) => n.toString() === 'NaN'
+  const isNaNSafety = (n = '') => n.toString() === 'NaN'
 
   if (
     crops.length !== 2 ||
