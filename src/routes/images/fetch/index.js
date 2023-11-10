@@ -222,6 +222,14 @@ router.get(
         project,
       })
 
+      const failedImage = await imageRepository.getByOriginUrl(originUrl)
+
+      // free quota limit
+      if (failedImage && e.status !== 429)
+        await imageRepository.update(failedImage._id, {
+          status: imageConfig.status.FAILED,
+        })
+
       if (req.query.debug) {
         throw e
       }
@@ -235,17 +243,6 @@ router.get(
           return
         }
       }
-
-      // free quota limit
-      if (e.status === 429) {
-        return
-      }
-
-      const failedImage = await imageRepository.getByOriginUrl(originUrl)
-      if (failedImage)
-        await imageRepository.update(failedImage._id, {
-          status: imageConfig.status.FAILED,
-        })
     }
   }
 )

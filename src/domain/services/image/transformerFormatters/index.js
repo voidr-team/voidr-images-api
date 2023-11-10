@@ -71,10 +71,10 @@ const getTransformersPipeline = (transformersString) => {
       (keyword) => !['compress', 'convert'].includes(keyword)
     )
     // compress needs to run first
-    return [...othersTransformers]
+    return ['compress', ...othersTransformers]
   }
 
-  return ['compress', ...keyWords]
+  return [...keyWords]
 }
 
 export default {

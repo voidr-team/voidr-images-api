@@ -71,13 +71,17 @@ export class ImageTransform {
   compress = this.declareExecution((transformers) => {
     const availableFormats = ['jpeg', 'png', 'webp', 'gif', 'tiff', 'avif']
     const format = transformers?.convert?.format
-    const quality = transformers?.compress?.quality
+    const quality =
+      transformers?.compress?.quality === 'smart'
+        ? 90
+        : transformers?.compress?.quality
+
     if (!availableFormats.includes(format)) {
       throw new HttpException(422, `convert format "${format}" not available`)
     }
 
     this.sharpChain[format]({
-      quality: quality || 80,
+      quality: quality || 100,
     })
   })
 
