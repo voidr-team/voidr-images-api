@@ -57,7 +57,7 @@ const morganMiddleware = morgan(
           console.log(message, data)
           return
         }
-        if (data.status > 399 && data.status !== 404) {
+        if (data.status > 399 && data.status !== 404 && data.status !== 401) {
           logger.error(`${message}`, data)
         } else if (
           (data.status >= 300 && data.status <= 199) ||
