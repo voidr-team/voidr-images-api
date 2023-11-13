@@ -124,7 +124,7 @@ router.post('/projects/plan/upgrade', auth, async (req, res) => {
     ],
     currency: 'brl',
     mode: 'subscription',
-    success_url: `${config.APP_URL}common/billing?checkout=completed`,
+    success_url: `${config.APP_URL}/pt-BR/common/billing?checkout=completed`,
     metadata: {
       projectId: String(project._id),
       name: project.name,
