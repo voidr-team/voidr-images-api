@@ -111,6 +111,35 @@ router.put(
   }
 )
 
+router.post('/projects/checkout', auth, async (req, res) => {
+  const { token, email, name } = req.body
+  const issuer = getIssuer(req)
+  const customer = await stripe.customers.create({
+    source: token.id,
+    email: email,
+    name: name,
+  })
+
+  const project = await projectRepository.getByOrgId(issuer.organizationId)
+
+  await stripe.subscriptions.create({
+    customer: customer.id,
+    items: [
+      {
+        price: config.STRIPE.PRO_PLAN,
+      },
+    ],
+    currency: 'brl',
+    expand: ['latest_invoice.payment_intent'],
+    metadata: {
+      projectId: String(project._id),
+      name: project.name,
+    },
+  })
+
+  return res.status(200).send()
+})
+
 router.post('/projects/plan/upgrade', auth, async (req, res) => {
   const issuer = getIssuer(req)
   const project = await projectRepository.getByOrgId(issuer.organizationId)

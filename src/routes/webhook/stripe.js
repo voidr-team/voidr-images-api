@@ -14,6 +14,29 @@ router.post('/webhook/stripe', async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret)
     switch (event.type) {
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object
+        const projectId = invoice.subscription_details?.metadata?.projectId
+        const customer = invoice.customer
+        const subscriptionId = invoice.subscription
+
+        if (
+          invoice.status === 'paid' &&
+          invoice.billing_reason === 'subscription_create' &&
+          projectId
+        ) {
+          await projectRepository.updatePlan(projectId, {
+            plan: projectConfig.plans.PRO,
+            subscription: subscriptionId,
+            customer,
+          })
+
+          logger.info('subscription confirmed via invoice.payment_succeeded', {
+            projectId,
+          })
+        }
+        break
+      }
       case 'checkout.session.async_payment_succeeded':
       case 'checkout.session.completed': {
         const checkoutSessionCompleted = event.data.object
@@ -38,6 +61,7 @@ router.post('/webhook/stripe', async (req, res) => {
             checkoutSessionCompleted,
           })
         }
+        break
       }
     }
   } catch (err) {
