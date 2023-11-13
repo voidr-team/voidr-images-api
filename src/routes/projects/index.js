@@ -122,6 +122,7 @@ router.post('/projects/plan/upgrade', auth, async (req, res) => {
         price: config.STRIPE.PRO_PLAN,
       },
     ],
+    currency: 'brl',
     mode: 'subscription',
     success_url: `${config.APP_URL}common/billing?checkout=completed`,
     metadata: {
