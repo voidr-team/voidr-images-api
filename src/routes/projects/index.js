@@ -60,6 +60,7 @@ router.post(
         },
         domains: body.domains,
         members: [issuer.sub],
+        referral: body?.referral ?? null,
       }
     )
 
