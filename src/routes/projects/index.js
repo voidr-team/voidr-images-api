@@ -10,6 +10,7 @@ import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory
 import stripe from '#src/infra/providers/Stripe'
 import config from '#src/config'
 import axios from 'axios'
+import { isEmpty } from 'ramda'
 
 const router = express.Router()
 
@@ -47,6 +48,20 @@ router.post(
       issuer.sub,
     ])
 
+    if (body?.referral) {
+      axios.post(
+        'https://discord.com/api/webhooks/1174088502368030720/gQyx0KN4Dzt9_izVCKQY0hj7fqrcVXXqHd3truLdQnj60326Hy4NL9AYfjEYMzn4bc7h',
+        {
+          content: `Novo cadastro através de indicação!!!
+    
+Projeto de indicação:  ${body?.referral}
+Novo projeto: ${body?.name}
+---------------------------
+    `,
+        }
+      )
+    }
+
     const createdProject = await projectRepository.create(
       {
         organizationId: organization.id,
@@ -60,6 +75,7 @@ router.post(
         },
         domains: body.domains,
         members: [issuer.sub],
+        referral: body?.referral ?? null,
       }
     )
 

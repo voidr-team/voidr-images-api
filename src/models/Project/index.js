@@ -10,6 +10,11 @@ export const Project = mongoose.model(
         type: String,
         required: true,
       },
+      referral: {
+        type: String,
+        trim: true,
+        default: null,
+      },
       domains: [
         {
           type: String,
