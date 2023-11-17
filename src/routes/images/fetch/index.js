@@ -17,9 +17,9 @@ router.get(
   '/images/:project/:transformers(*)/fetch/:remote(*)',
   async (req, res) => {
     const { transformers = '', remote: remoteBaseUrl, project } = req.params
-    const isLocalFile = remoteBaseUrl.startsWith('local')
+    const isLocalFile = remoteBaseUrl.startsWith('local/')
     const remoteUrl = isLocalFile
-      ? `https://${req.get('host')}${remoteBaseUrl}`
+      ? `https://${req.get('host')}${remoteBaseUrl.replace('local/', '')}`
       : remoteBaseUrl
 
     const rawQueryStrings = url.parse(req.url).query
