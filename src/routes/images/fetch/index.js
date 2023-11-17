@@ -17,10 +17,14 @@ router.get(
   '/images/:project/:transformers(*)/fetch/:remote(*)',
   async (req, res) => {
     const { transformers = '', remote: remoteBaseUrl, project } = req.params
+    const hasHttp =
+      remoteBaseUrl.includes('https://') || remoteBaseUrl.includes('http://')
+    const remoteUrl = hasHttp
+      ? remoteBaseUrl
+      : `https://${req.get('host')}${remoteBaseUrl}`
+
     const rawQueryStrings = url.parse(req.url).query
-    const remote = `${remoteBaseUrl}${
-      rawQueryStrings ? '?' + rawQueryStrings : ''
-    }`
+    const remote = `${remoteUrl}${rawQueryStrings ? '?' + rawQueryStrings : ''}`
     const originUrl = req.baseUrl + req.path
 
     let noCacheHeaders = {
@@ -239,7 +243,7 @@ router.get(
         if (isValidHttpUrl(remote)) {
           res.redirect(303, remote)
         } else {
-          res.send(404).send()
+          res.status(404).send()
           return
         }
       }
