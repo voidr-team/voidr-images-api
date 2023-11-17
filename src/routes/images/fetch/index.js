@@ -19,7 +19,7 @@ router.get(
     const { transformers = '', remote: remoteBaseUrl, project } = req.params
     const isLocalFile = remoteBaseUrl.startsWith('local/')
     const remoteUrl = isLocalFile
-      ? `https://${req.get('Referer')}${remoteBaseUrl.replace('local/', '')}`
+      ? `${req.get('Referer')}${remoteBaseUrl.replace('local/', '')}`
       : remoteBaseUrl
 
     const rawQueryStrings = url.parse(req.url).query
