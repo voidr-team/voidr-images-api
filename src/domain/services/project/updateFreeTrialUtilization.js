@@ -30,20 +30,39 @@ const updateFreeTrialUtilization = async (project) => {
     }))
 
   // That's 80%
-  if (imagesQnty * 0.8 >= usageLimit) {
+  if (
+    imagesQnty * 0.8 >= usageLimit &&
+    !project?.metadata?.cadenceEmailSent?.includes('80_PERCENT_QUOTA')
+  ) {
     await SendGrid.sendEmail(
       SendGrid.emailTemplates.eightyPercentFreeUsage,
       emailsFromOrganizationMembers
     )
+
+    await projectRepository.updateProjectMetadata(project._id, {
+      cadenceEmailSent: '80_PERCENT_QUOTA',
+    })
   }
 
   if (imagesQnty > usageLimit) {
-    await projectRepository.updateFreePlanExpired(project._id)
+    const updateFreePlanExpiredPromise =
+      projectRepository.updateFreePlanExpired(project._id)
 
-    await SendGrid.sendEmail(
+    const sendEmailPromise = SendGrid.sendEmail(
       SendGrid.emailTemplates.hundredPercentFreeUsage,
       emailsFromOrganizationMembers
     )
+
+    const updateProjectMetadataPromise =
+      projectRepository.updateProjectMetadata(project._id, {
+        cadenceEmailSent: '100_PERCENT_QUOTA',
+      })
+
+    await Promise.all([
+      updateFreePlanExpiredPromise,
+      sendEmailPromise,
+      updateProjectMetadataPromise,
+    ])
   }
 }
 

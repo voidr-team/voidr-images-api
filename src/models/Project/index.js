@@ -59,6 +59,13 @@ export const Project = mongoose.model(
           default: 1000,
         },
       },
+      metadata: {
+        cadenceEmailSent: {
+          type: Array,
+          required: false,
+          default: [],
+        },
+      },
     },
     {
       timestamps: true,

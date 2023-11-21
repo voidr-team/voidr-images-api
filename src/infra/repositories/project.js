@@ -118,6 +118,22 @@ const updateFreePlanExpired = async (id) => {
   return updateProject
 }
 
+/**
+ * @param {string} id
+ * @param {object} metadata
+ */
+const updateProjectMetadata = async (id, metadata) => {
+  const updateProject = await Project.findByIdAndUpdate(
+    id,
+    {
+      $push: { 'metadata.cadenceEmailSent': metadata?.cadenceEmailSent },
+    },
+    { new: true }
+  )
+
+  return updateProject
+}
+
 const listProPlan = async () => {
   const proPlanProjects = await Project.find({
     plan: projectConfig.plans.PRO,
@@ -134,6 +150,7 @@ const projectRepository = {
   getByName,
   updateDomains,
   updateFreePlanExpired,
+  updateProjectMetadata,
   getByOrgId,
   addMember,
   getById,
