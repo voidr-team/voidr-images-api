@@ -32,6 +32,11 @@ const config = {
     PRO_PLAN: process.env.STRIPE_PRO_PLAN,
     WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
   },
+  EMAIL: {
+    EMAIL_SERVICE_KEY:
+      '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',
+    EMAIL_SERVICE_URL: 'https://api.sendgrid.com/v3',
+  },
 }
 
 export default config

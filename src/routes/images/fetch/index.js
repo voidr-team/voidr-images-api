@@ -217,7 +217,7 @@ router.get(
       res.status(200).set(headers)
       return fileRead.pipe(res)
     } catch (e) {
-      logger.error(e.message || 'Failed to process image', {
+      logger.error(e?.message || 'Failed to process image', {
         error: e,
         transformers,
         remote,
@@ -228,7 +228,7 @@ router.get(
       const failedImage = await imageRepository.getByOriginUrl(originUrl)
 
       // free quota limit
-      if (failedImage && e.status !== 429)
+      if (failedImage && e?.status !== 429)
         await imageRepository.update(failedImage._id, {
           status: imageConfig.status.FAILED,
         })
