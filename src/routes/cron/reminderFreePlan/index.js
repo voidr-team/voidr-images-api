@@ -35,10 +35,9 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
 
         return user?.data
       } catch (error) {
-        logger.error(
-          `Organization: ${organizationId}. Unable to get users, error: `,
-          error
-        )
+        logger.error(`Unable to get user by organizationId`, {
+          organizationId,
+        })
         return null
       }
     })
@@ -65,10 +64,10 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
         cadenceEmailSent: cadenceMetadata.PERCENT_REMINDER_100,
       })
     } catch (error) {
-      logger.error(
-        `Project: ${project}, Unable to update project, error: `,
-        error
-      )
+      logger.error(`Unable to update project`, {
+        projectId: project?._id,
+        createdBy: project.createdBy,
+      })
       return null
     }
   })
