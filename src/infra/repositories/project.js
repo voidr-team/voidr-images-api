@@ -124,6 +124,9 @@ const updateFreePlanExpired = async (id) => {
     { 'freePlan.expired': true },
     { new: true }
   )
+    .lean()
+    .exec()
+
   return updateProject
 }
 
@@ -139,6 +142,8 @@ const updateProjectCadenceEmailSent = async (id, metadata) => {
     },
     { new: true }
   )
+    .lean()
+    .exec()
 
   return updateProject
 }

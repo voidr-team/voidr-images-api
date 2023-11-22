@@ -33,36 +33,31 @@ async function sendEmail(
     name: 'voidr',
   }
 ) {
-  try {
-    const personalizations = Array.isArray(emailData)
-      ? emailData.map(getEmailPersonalization)
-      : [getEmailPersonalization(emailData)]
+  const personalizations = Array.isArray(emailData)
+    ? emailData.map(getEmailPersonalization)
+    : [getEmailPersonalization(emailData)]
 
-    const response = await axios.post(
-      `${config.EMAIL.EMAIL_SERVICE_URL}/mail/send`,
-      {
-        from,
-        personalizations,
-        template_id: onboardingTemplateId,
+  const response = await axios.post(
+    `${config.EMAIL.EMAIL_SERVICE_URL}/mail/send`,
+    {
+      from,
+      personalizations,
+      template_id: onboardingTemplateId,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.EMAIL.EMAIL_SERVICE_KEY}`,
       },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.EMAIL.EMAIL_SERVICE_KEY}`,
-        },
-      }
-    )
-
-    if (![200, 202].includes(response.status)) {
-      logger.error(response)
-      throw new Error('Failed to send email.')
     }
+  )
 
-    return response.data
-  } catch (error) {
-    logger.error(error)
+  if (![200, 202].includes(response.status)) {
+    logger.error(response)
     throw new Error('Failed to send email.')
   }
+
+  return response.data
 }
 
 const SendGrid = { sendEmail, emailTemplates }
