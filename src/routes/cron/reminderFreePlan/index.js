@@ -13,14 +13,9 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
   const freePlanProjectExpired = await projectRepository.getFreePlanExpired()
   logger.info('Get all projects successfully')
 
-  const organizationIdsFromProjectsExpired = freePlanProjectExpired
-    .filter(
-      (project) =>
-        !project?.metadata?.cadenceEmailSent.includes(
-          cadenceMetadata.PERCENT_REMINDER_100
-        )
-    )
-    .map((project) => project?.createdBy?.organizationId)
+  const organizationIdsFromProjectsExpired = freePlanProjectExpired.map(
+    (project) => project?.createdBy?.organizationId
+  )
 
   if (isEmpty(organizationIdsFromProjectsExpired)) {
     return res.send()
