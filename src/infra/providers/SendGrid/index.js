@@ -1,6 +1,6 @@
 import config from '#src/config'
 import logger from '#src/domain/logger'
-import request from 'request'
+import axios from 'axios'
 import emailTemplates from './templates'
 
 /**
@@ -33,39 +33,36 @@ async function sendEmail(
     name: 'voidr',
   }
 ) {
-  let personalizations = Array.isArray(emailData)
-    ? emailData.map(getEmailPersonalization)
-    : [getEmailPersonalization(emailData)]
-  return new Promise((resolve, reject) => {
-    request(
+  try {
+    const personalizations = Array.isArray(emailData)
+      ? emailData.map(getEmailPersonalization)
+      : [getEmailPersonalization(emailData)]
+
+    const response = await axios.post(
+      `${config.EMAIL.EMAIL_SERVICE_URL}/mail/send`,
       {
-        url: `${config.EMAIL.EMAIL_SERVICE_URL}/mail/send`,
-        method: 'POST',
-        body: JSON.stringify({
-          from,
-          personalizations: personalizations,
-          template_id: onboardingTemplateId,
-        }),
+        from,
+        personalizations,
+        template_id: onboardingTemplateId,
+      },
+      {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${config.EMAIL.EMAIL_SERVICE_KEY}`,
         },
-      },
-      function (err, r, body) {
-        if (err) {
-          logger.error(err)
-          return reject(err)
-        }
-
-        if (!/(200|202)/.test(r.statusCode)) {
-          logger.error(r, body)
-          return reject()
-        }
-
-        return resolve()
       }
     )
-  })
+
+    if (![200, 202].includes(response.status)) {
+      logger.error(response)
+      throw new Error('Failed to send email.')
+    }
+
+    return response.data
+  } catch (error) {
+    logger.error(error)
+    throw new Error('Failed to send email.')
+  }
 }
 
 const SendGrid = { sendEmail, emailTemplates }
