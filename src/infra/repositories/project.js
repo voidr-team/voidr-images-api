@@ -26,6 +26,15 @@ const list = async (issuer) => {
   return projects
 }
 
+const getFreePlanExpired = async () => {
+  const projects = await Project.find({
+    'freePlan.expired': true,
+    plan: 'FREE',
+  })
+
+  return projects
+}
+
 /** @param {string} projectName */
 const exists = async (projectName) => {
   const existsProject = await Project.exists({ name: projectName }).exec()
@@ -126,7 +135,7 @@ const updateProjectMetadata = async (id, metadata) => {
   const updateProject = await Project.findByIdAndUpdate(
     id,
     {
-      $push: { 'metadata.cadenceEmailSent': metadata?.cadenceEmailSent },
+      $addToSet: { 'metadata.cadenceEmailSent': metadata?.cadenceEmailSent },
     },
     { new: true }
   )
@@ -149,6 +158,7 @@ const projectRepository = {
   exists,
   getByName,
   updateDomains,
+  getFreePlanExpired,
   updateFreePlanExpired,
   updateProjectMetadata,
   getByOrgId,

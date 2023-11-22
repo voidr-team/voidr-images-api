@@ -9,6 +9,7 @@ import dashboardRouter from './dashboard'
 import usageRouter from './usage'
 import webhookStripeRoutes from './webhook/stripe'
 import cronBillingRoutes from './cron/billing'
+import reminderFreePlan from './cron/reminderFreePlan'
 
 export default [
   userRoutes,
@@ -22,4 +23,5 @@ export default [
   usageRouter,
   webhookStripeRoutes,
   cronBillingRoutes,
+  reminderFreePlan,
 ]
