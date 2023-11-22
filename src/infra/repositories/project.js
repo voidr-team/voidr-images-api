@@ -131,7 +131,7 @@ const updateFreePlanExpired = async (id) => {
  * @param {string} id
  * @param {object} metadata
  */
-const updateProjectMetadata = async (id, metadata) => {
+const updateProjectCadenceEmailSent = async (id, metadata) => {
   const updateProject = await Project.findByIdAndUpdate(
     id,
     {
@@ -160,7 +160,7 @@ const projectRepository = {
   updateDomains,
   getFreePlanExpired,
   updateFreePlanExpired,
-  updateProjectMetadata,
+  updateProjectCadenceEmailSent,
   getByOrgId,
   addMember,
   getById,

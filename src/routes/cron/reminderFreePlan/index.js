@@ -35,21 +35,10 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
 
         return user?.data
       } catch (error) {
-        logger.error('Unable to get users')
-        return null
-      }
-    })
-  )
-
-  await Promise.all(
-    freePlanProjectExpired.map(async (project) => {
-      try {
-        await projectRepository.updateProjectMetadata(project._id, {
-          cadenceEmailSent: cadenceMetadata.PERCENT_REMINDER_100,
-        })
-      } catch (error) {
-        logger.error('Unable to update project')
-        console.error(error)
+        logger.error(
+          `Organization: ${organizationId}. Unable to get users, error: `,
+          error
+        )
         return null
       }
     })
@@ -72,12 +61,14 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
 
   const updateProjectsPromises = freePlanProjectExpired.map(async (project) => {
     try {
-      await projectRepository.updateProjectMetadata(project._id, {
+      await projectRepository.updateProjectCadenceEmailSent(project._id, {
         cadenceEmailSent: cadenceMetadata.PERCENT_REMINDER_100,
       })
     } catch (error) {
-      logger.error('Unable to update project')
-      console.error(error)
+      logger.error(
+        `Project: ${project}, Unable to update project, error: `,
+        error
+      )
       return null
     }
   })

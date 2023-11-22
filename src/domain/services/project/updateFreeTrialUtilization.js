@@ -42,9 +42,12 @@ const updateFreeTrialUtilization = async (project) => {
       emailsFromOrganizationMembers
     )
 
-    const updateProject = projectRepository.updateProjectMetadata(project._id, {
-      cadenceEmailSent: cadenceMetadata.PERCENT_QUOTA_80,
-    })
+    const updateProject = projectRepository.updateProjectCadenceEmailSent(
+      project._id,
+      {
+        cadenceEmailSent: cadenceMetadata.PERCENT_QUOTA_80,
+      }
+    )
 
     await Promise.all([sendEmail, updateProject])
   }
@@ -58,15 +61,15 @@ const updateFreeTrialUtilization = async (project) => {
       emailsFromOrganizationMembers
     )
 
-    const updateProjectMetadataPromise =
-      projectRepository.updateProjectMetadata(project._id, {
+    const updateProjectCadenceEmailSentPromise =
+      projectRepository.updateProjectCadenceEmailSent(project._id, {
         cadenceEmailSent: cadenceMetadata.PERCENT_QUOTA_100,
       })
 
     await Promise.all([
       updateFreePlanExpiredPromise,
       sendEmailPromise,
-      updateProjectMetadataPromise,
+      updateProjectCadenceEmailSentPromise,
     ])
   }
 }
