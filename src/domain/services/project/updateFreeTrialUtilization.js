@@ -4,6 +4,7 @@ import imageRepository from '#src/infra/repositories/image'
 import projectRepository from '#src/infra/repositories/project'
 import { ProjectSchema } from '#src/models/Project'
 import { projectConfig } from '#src/models/Project/projectConfig'
+import cadenceMetadata from '#src/utils/enums/cadenceMetadata'
 import getFirstNameOnly from '#src/utils/string/getFirstNameOnly'
 
 /**
@@ -32,16 +33,20 @@ const updateFreeTrialUtilization = async (project) => {
   // That's 80%
   if (
     imagesQnty * 0.8 >= usageLimit &&
-    !project?.metadata?.cadenceEmailSent?.includes('80_PERCENT_QUOTA')
+    !project?.metadata?.cadenceEmailSent?.includes(
+      cadenceMetadata.PERCENT_QUOTA_80
+    )
   ) {
-    await SendGrid.sendEmail(
+    const sendEmail = SendGrid.sendEmail(
       SendGrid.emailTemplates.eightyPercentFreeUsage,
       emailsFromOrganizationMembers
     )
 
-    await projectRepository.updateProjectMetadata(project._id, {
-      cadenceEmailSent: '80_PERCENT_QUOTA',
+    const updateProject = projectRepository.updateProjectMetadata(project._id, {
+      cadenceEmailSent: cadenceMetadata.PERCENT_QUOTA_80,
     })
+
+    await Promise.all([sendEmail, updateProject])
   }
 
   if (imagesQnty > usageLimit) {
@@ -55,7 +60,7 @@ const updateFreeTrialUtilization = async (project) => {
 
     const updateProjectMetadataPromise =
       projectRepository.updateProjectMetadata(project._id, {
-        cadenceEmailSent: '100_PERCENT_QUOTA',
+        cadenceEmailSent: cadenceMetadata.PERCENT_QUOTA_100,
       })
 
     await Promise.all([

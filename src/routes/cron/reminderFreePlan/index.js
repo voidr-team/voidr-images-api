@@ -5,6 +5,7 @@ import express from 'express'
 import auth0ManagementFactory from '#src/infra/providers/Auth0Management/factory'
 import getFirstNameOnly from '#src/utils/string/getFirstNameOnly'
 import { isEmpty } from 'ramda'
+import cadenceMetadata from '#src/utils/enums/cadenceMetadata'
 const router = express.Router()
 
 router.post('/cron/reminder-free-plan', async (req, res) => {
@@ -15,7 +16,9 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
   const organizationIdsFromProjectsExpired = freePlanProjectExpired
     .filter(
       (project) =>
-        !project?.metadata?.cadenceEmailSent.includes('100_PERCENT_REMINDER')
+        !project?.metadata?.cadenceEmailSent.includes(
+          cadenceMetadata.PERCENT_REMINDER_100
+        )
     )
     .map((project) => project?.createdBy?.organizationId)
 
@@ -42,7 +45,7 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
     freePlanProjectExpired.map(async (project) => {
       try {
         await projectRepository.updateProjectMetadata(project._id, {
-          cadenceEmailSent: '100_PERCENT_REMINDER',
+          cadenceEmailSent: cadenceMetadata.PERCENT_REMINDER_100,
         })
       } catch (error) {
         logger.error('Unable to update project')
@@ -70,7 +73,7 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
   const updateProjectsPromises = freePlanProjectExpired.map(async (project) => {
     try {
       await projectRepository.updateProjectMetadata(project._id, {
-        cadenceEmailSent: '100_PERCENT_REMINDER',
+        cadenceEmailSent: cadenceMetadata.PERCENT_REMINDER_100,
       })
     } catch (error) {
       logger.error('Unable to update project')
