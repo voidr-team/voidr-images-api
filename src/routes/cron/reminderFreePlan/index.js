@@ -23,7 +23,7 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
       }
 
       return (
-        count(hasReminder, expiredProject.metadata.cadenceEmailSent) <=
+        count(hasReminder, expiredProject.metadata.cadenceEmailSent) <
         TIMES_TO_SEND_REMINDER
       )
     })

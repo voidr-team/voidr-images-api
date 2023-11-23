@@ -33,7 +33,7 @@ const updateFreeTrialUtilization = async (project) => {
 
   // That's 80%
   if (
-    imagesQnty * 0.8 >= usageLimit &&
+    imagesQnty >= usageLimit * 0.8 &&
     !project?.metadata?.cadenceEmailSent?.includes(
       mktEmailLabels.PERCENT_QUOTA_80
     )

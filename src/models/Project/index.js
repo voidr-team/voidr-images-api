@@ -68,7 +68,6 @@ export const Project = mongoose.model(
         nextSend: {
           date: {
             type: Date,
-            required: true,
           },
           emailLabel: {
             type: String,
