@@ -138,7 +138,12 @@ const updateProjectCadenceEmailSent = async (id, metadata) => {
   const updateProject = await Project.findByIdAndUpdate(
     id,
     {
-      $addToSet: { 'metadata.cadenceEmailSent': metadata?.cadenceEmailSent },
+      $push: {
+        'metadata.cadenceEmailSent': metadata?.cadenceEmailSent,
+      },
+      $set: {
+        'metadata.nextSend': metadata?.nextSend,
+      },
     },
     { new: true }
   )

@@ -61,9 +61,18 @@ export const Project = mongoose.model(
       },
       metadata: {
         cadenceEmailSent: {
-          type: Array,
+          type: [String],
           required: false,
           default: [],
+        },
+        nextSend: {
+          date: {
+            type: Date,
+            required: true,
+          },
+          emailLabel: {
+            type: String,
+          },
         },
       },
     },

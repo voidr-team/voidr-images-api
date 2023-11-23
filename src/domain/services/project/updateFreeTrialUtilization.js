@@ -4,8 +4,9 @@ import imageRepository from '#src/infra/repositories/image'
 import projectRepository from '#src/infra/repositories/project'
 import { ProjectSchema } from '#src/models/Project'
 import { projectConfig } from '#src/models/Project/projectConfig'
-import cadenceMetadata from '#src/utils/enums/cadenceMetadata'
+import mktEmailLabels from '#src/utils/enums/mktEmailLabels'
 import getFirstNameOnly from '#src/utils/string/getFirstNameOnly'
+import dayjs from 'dayjs'
 
 /**
  * @param {ProjectSchema} project
@@ -34,7 +35,7 @@ const updateFreeTrialUtilization = async (project) => {
   if (
     imagesQnty * 0.8 >= usageLimit &&
     !project?.metadata?.cadenceEmailSent?.includes(
-      cadenceMetadata.PERCENT_QUOTA_80
+      mktEmailLabels.PERCENT_QUOTA_80
     )
   ) {
     const sendEmail = SendGrid.sendEmail(
@@ -45,14 +46,14 @@ const updateFreeTrialUtilization = async (project) => {
     const updateProject = projectRepository.updateProjectCadenceEmailSent(
       project._id,
       {
-        cadenceEmailSent: cadenceMetadata.PERCENT_QUOTA_80,
+        cadenceEmailSent: mktEmailLabels.PERCENT_QUOTA_80,
       }
     )
 
     await Promise.all([sendEmail, updateProject])
   }
 
-  if (imagesQnty > usageLimit) {
+  if (imagesQnty >= usageLimit) {
     const updateFreePlanExpiredPromise =
       projectRepository.updateFreePlanExpired(project._id)
 
@@ -63,7 +64,11 @@ const updateFreeTrialUtilization = async (project) => {
 
     const updateProjectCadenceEmailSentPromise =
       projectRepository.updateProjectCadenceEmailSent(project._id, {
-        cadenceEmailSent: cadenceMetadata.PERCENT_QUOTA_100,
+        cadenceEmailSent: mktEmailLabels.PERCENT_QUOTA_100,
+        nextSend: {
+          date: dayjs().add(3, 'days').toDate(),
+          emailLabel: mktEmailLabels.PERCENT_REMINDER_100,
+        },
       })
 
     await Promise.all([
