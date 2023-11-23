@@ -9,7 +9,7 @@ import mktEmailLabels from '#src/utils/enums/mktEmailLabels'
 import dayjs from 'dayjs'
 const router = express.Router()
 
-const TIMES_TO_SEND_REMINDER = 4
+const TIMES_TO_SEND_REMINDER = 3
 
 router.post('/cron/reminder-free-plan', async (req, res) => {
   const auth0Management = await auth0ManagementFactory()
@@ -23,7 +23,7 @@ router.post('/cron/reminder-free-plan', async (req, res) => {
       }
 
       return (
-        count(hasReminder, expiredProject.metadata.cadenceEmailSent) <
+        count(hasReminder, expiredProject.metadata.cadenceEmailSent) <=
         TIMES_TO_SEND_REMINDER
       )
     })
