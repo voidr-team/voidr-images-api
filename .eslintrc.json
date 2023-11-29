@@ -1,0 +1,28 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "ignorePatterns": ["node_modules"],
+  "extends": ["eslint:recommended"],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly",
+    "process": "readonly",
+    "Buffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "jsdoc/no-undefined-types": "off",
+    "no-unused-vars": "off",
+    "no-console": "off",
+    "no-unreachable": "warn",
+    "no-extra-boolean-cast": "warn",
+    "no-async-promise-executor": "warn",
+    "no-useless-escape": "warn"
+  },
+  "plugins": ["jsdoc"]
+}

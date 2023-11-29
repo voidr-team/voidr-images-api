@@ -1,0 +1,16 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    container_name: voidr-service
+    build:
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - PORT=3000
+      - NODE_ENV=local
+    command: npm run start
