@@ -15,7 +15,7 @@ const downloadImageBuffer = async (url) => {
       maxBodyLength: 5000000,
     })
     .catch((err) => {
-      logger.error('Failed to download image', { url })
+      logger.error('Failed to download image', { url, message: err?.message })
       throw err
     })
     .then((response) => {
