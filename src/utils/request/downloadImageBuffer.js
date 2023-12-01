@@ -13,6 +13,9 @@ const downloadImageBuffer = async (url) => {
       responseType: 'arraybuffer',
       maxContentLength: 5000000,
       maxBodyLength: 5000000,
+      headers: {
+        VoidrImages: 'download-image',
+      },
     })
     .catch((err) => {
       logger.error('Failed to download image', { url, message: err?.message })
