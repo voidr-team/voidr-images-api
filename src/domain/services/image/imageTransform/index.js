@@ -1,6 +1,7 @@
 import HttpException from '#src/domain/exceptions/HttpException'
+import downloadImageBuffer from '#src/utils/request/downloadImageBuffer'
+import { isNil } from 'ramda'
 import sharp from 'sharp'
-import sharpSmartCrop from 'smartcrop-sharp'
 
 export class ImageTransform {
   /** @type {sharp.Sharp} */
@@ -102,8 +103,50 @@ export class ImageTransform {
 
   pipe = (...args) => this.sharpChain.pipe(...args)
 
+  wattermark = this.declareExecution(async (transformers) => {
+    const wattermarkSource = transformers?.wattermark?.source
+    const opacity = isNil(transformers?.wattermark?.opacity)
+      ? 1
+      : transformers?.wattermark?.opacity
+
+    const watterarkBuffer = await sharp(
+      await downloadImageBuffer(wattermarkSource)
+    )
+      .composite([
+        {
+          input: Buffer.from([255, 255, 255, 255 * opacity]),
+          raw: {
+            width: 1,
+            height: 1,
+            channels: 4,
+          },
+          tile: true,
+          blend: 'dest-in',
+        },
+      ])
+      .toBuffer()
+    this.sharpChain.composite([
+      {
+        input: watterarkBuffer,
+        gravity: transformers?.wattermark?.position || 'centre',
+      },
+    ])
+  })
+
   bufferWithMetadata = () =>
-    this.sharpChain.toBuffer({ resolveWithObject: true })
+    this.sharpChain.toBuffer({ resolveWithObject: true }).catch((e) => {
+      if (
+        e.message?.includes(
+          'Image to composite must have same dimensions or smaller'
+        )
+      ) {
+        throw new HttpException(
+          422,
+          'wattermark image dimensions must be smaller than the source image'
+        )
+      }
+      throw e
+    })
 }
 
 function imageTransformFactory(imageBuffer) {
