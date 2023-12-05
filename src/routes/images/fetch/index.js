@@ -61,8 +61,7 @@ router.get(
 
       if (
         existedImage &&
-        existedImage.status === imageConfig.status.COMPLETED &&
-        false
+        existedImage.status === imageConfig.status.COMPLETED
       ) {
         logger.info('Image found on database', {
           transformers,
