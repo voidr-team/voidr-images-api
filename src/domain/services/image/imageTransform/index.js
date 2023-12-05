@@ -1,11 +1,18 @@
 import HttpException from '#src/domain/exceptions/HttpException'
 import downloadImageBuffer from '#src/utils/request/downloadImageBuffer'
-import { isNil } from 'ramda'
+import { isEmpty, isNil, isNotNil } from 'ramda'
 import sharp from 'sharp'
 
 export class ImageTransform {
   /** @type {sharp.Sharp} */
   sharpChain = null
+  promises = []
+
+  /** @type {sharp.Metadata | null} */
+  rawImageMetadata = null
+
+  /** @type {sharp.Metadata | null} */
+  imageMetadata = null
 
   constructor(imageBuffer) {
     this.sharpChain = sharp(imageBuffer)
@@ -98,59 +105,76 @@ export class ImageTransform {
 
   execute = async () => {
     await this.promises.reduce((p, fn) => p.then(fn), Promise.resolve())
+    this.imageMetadata = (await this.bufferWithMetadata()).info
     return
   }
 
   pipe = (...args) => this.sharpChain.pipe(...args)
 
-  wattermark = this.declareExecution(async (transformers) => {
-    const wattermarkSource = transformers?.wattermark?.source
-    const opacity = isNil(transformers?.wattermark?.opacity)
+  watermark = async (transformers) => {
+    const watermarkSource = transformers?.watermark?.source
+    const opacity = isNil(transformers?.watermark?.opacity)
       ? 1
-      : transformers?.wattermark?.opacity
+      : transformers?.watermark?.opacity
 
-    const watterarkBuffer = await sharp(
-      await downloadImageBuffer(wattermarkSource)
-    )
-      .composite([
-        {
-          input: Buffer.from([255, 255, 255, 255 * opacity]),
-          raw: {
-            width: 1,
-            height: 1,
-            channels: 4,
-          },
-          tile: true,
-          blend: 'dest-in',
+    const watermarkSharp = sharp(
+      await downloadImageBuffer(watermarkSource)
+    ).composite([
+      {
+        input: Buffer.from([255, 255, 255, 255 * opacity]),
+        raw: {
+          width: 1,
+          height: 1,
+          channels: 4,
         },
-      ])
-      .toBuffer()
+        tile: true,
+        blend: 'dest-in',
+      },
+    ])
+
+    const hasSizes =
+      transformers?.watermark?.size?.width ||
+      transformers?.watermark?.size?.height
+
+    let width, height
+
+    if (hasSizes) {
+      width = transformers?.watermark?.size?.width
+      height = transformers?.watermark?.size?.height
+    } else {
+      const sizePercent = transformers?.watermark?.size?.percent || 0.5
+      width = this.imageMetadata.width * sizePercent
+      height = this.imageMetadata.height * sizePercent
+    }
+
+    watermarkSharp.resize(width, height, {
+      fit: 'cover',
+      position: 'centre',
+    })
+
+    const watterarkBuffer = await watermarkSharp.toBuffer()
+
     this.sharpChain.composite([
       {
         input: watterarkBuffer,
-        gravity: transformers?.wattermark?.position || 'centre',
+        gravity: transformers?.watermark?.position || 'centre',
       },
     ])
-  })
+  }
 
   bufferWithMetadata = () =>
-    this.sharpChain.toBuffer({ resolveWithObject: true }).catch((e) => {
-      if (
-        e.message?.includes(
-          'Image to composite must have same dimensions or smaller'
-        )
-      ) {
-        throw new HttpException(
-          422,
-          'wattermark image dimensions must be smaller than the source image'
-        )
-      }
-      throw e
-    })
+    this.sharpChain.toBuffer({ resolveWithObject: true })
+
+  setRawImageMetadata = async () => {
+    const rawImageMetadata = (await this.bufferWithMetadata()).info
+    this.rawImageMetadata = rawImageMetadata
+  }
 }
 
-function imageTransformFactory(imageBuffer) {
-  return new ImageTransform(imageBuffer)
+async function imageTransformFactory(imageBuffer) {
+  const imageTransform = new ImageTransform(imageBuffer)
+  await imageTransform.setRawImageMetadata()
+  return imageTransform
 }
 
 export default imageTransformFactory

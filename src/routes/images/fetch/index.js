@@ -25,7 +25,6 @@ router.get(
     const rawQueryStrings = url.parse(req.url).query
     const remote = `${remoteUrl}${rawQueryStrings ? '?' + rawQueryStrings : ''}`
     const originUrl = req.baseUrl + req.path
-
     let noCacheHeaders = {
       'Cache-Control':
         'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
@@ -62,7 +61,8 @@ router.get(
 
       if (
         existedImage &&
-        existedImage.status === imageConfig.status.COMPLETED
+        existedImage.status === imageConfig.status.COMPLETED &&
+        false
       ) {
         logger.info('Image found on database', {
           transformers,
@@ -160,11 +160,11 @@ router.get(
         (await imageRepository.create(project, imagePendingProcessPayload))
 
       const { imageTransformer, rawImageMetadata, imageMetadata } =
-        await imageService.executePipeline(
-          remote,
-          parsedTransformers,
-          transformPipeline
-        )
+        await imageService
+          .executePipeline(remote, parsedTransformers, transformPipeline)
+          .catch((e) => {
+            throw e
+          })
 
       logger.info('Saving image in bucket', {
         transformers,
@@ -173,13 +173,17 @@ router.get(
         project,
       })
 
-      const { bucketFile } = await imageService.saveImageInBucket({
-        imageTransformer,
-        project: currentProject,
-        remoteImageUrl: remote,
-        baseFilePath: transformers,
-        imageMetadata,
-      })
+      const { bucketFile } = await imageService
+        .saveImageInBucket({
+          imageTransformer,
+          project: currentProject,
+          remoteImageUrl: remote,
+          baseFilePath: transformers,
+          imageMetadata,
+        })
+        .catch((e) => {
+          throw e
+        })
 
       const imagePayload = {
         name: imageName,
