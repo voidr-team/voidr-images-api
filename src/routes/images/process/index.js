@@ -36,11 +36,11 @@ router.post('/images/process', async (req, res) => {
     })
 
     const { imageTransformer, rawImageMetadata, imageMetadata } =
-      await imageService.executePipeline(
-        remote,
-        transformers,
-        transformPipeline
-      )
+      await imageService
+        .executePipeline(remote, transformers, transformPipeline)
+        .catch((e) => {
+          throw e
+        })
 
     logger.info('Saving image in bucket', {
       imageId,

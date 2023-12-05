@@ -144,11 +144,12 @@ export class ImageTransform {
     } else {
       const sizePercent = transformers?.watermark?.size?.percent || 0.5
       width = this.imageMetadata.width * sizePercent
-      height = this.imageMetadata.height * sizePercent
     }
 
-    watermarkSharp.resize(width, height, {
-      fit: 'cover',
+    const toInt = (val) => (val ? parseInt(val) : val)
+
+    watermarkSharp.resize(toInt(width), toInt(height), {
+      fit: width && height ? 'fill' : 'cover',
       position: 'centre',
     })
 
