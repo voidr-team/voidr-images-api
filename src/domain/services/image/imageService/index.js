@@ -17,21 +17,25 @@ import config from '#src/config'
 const executePipeline = async (remoteImg, transformers, transformPipeline) => {
   const imageBuffer = await downloadImageBuffer(remoteImg)
 
-  const imageTransformer = imageTransformFactory(imageBuffer)
+  const imageTransformer = await imageTransformFactory(imageBuffer)
 
-  const rawImageMetadata = (await imageTransformer.bufferWithMetadata()).info
+  const rawImageMetadata = imageTransformer.rawImageMetadata
 
   transformPipeline.forEach((task) => {
     const taskToRun = imageTransformer[task]
     if (!taskToRun) {
       throw new HttpException(422, `unknown transformer "${task}"`)
     }
-    taskToRun(transformers)
+    if (task !== 'watermark') taskToRun(transformers)
   })
 
   await imageTransformer.execute()
 
-  const imageMetadata = (await imageTransformer.bufferWithMetadata()).info
+  if (transformPipeline.includes('watermark')) {
+    await imageTransformer.watermark(transformers)
+  }
+
+  const imageMetadata = imageTransformer.imageMetadata
 
   return { imageTransformer, rawImageMetadata, imageMetadata }
 }
@@ -75,6 +79,8 @@ const saveImageInBucket = async ({
       .pipe(bucketFileWStream)
       .on('finish', resolve)
       .on('error', reject)
+  }).catch((e) => {
+    throw e
   })
 
   await endWrite

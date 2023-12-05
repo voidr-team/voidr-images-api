@@ -6,6 +6,7 @@ import rotate from './helpers/rotate'
 import convert from './helpers/convert'
 import compress from './helpers/compress'
 import blur from './helpers/blur'
+import watermark from './helpers/watermark'
 
 const transformFormatterMap = {
   crop,
@@ -15,6 +16,7 @@ const transformFormatterMap = {
   convert,
   compress,
   blur,
+  watermark,
 }
 
 const availableTransformers = Object.keys(transformFormatterMap)
@@ -23,11 +25,34 @@ const formatValueByTransformer = (keyword, transformerValue, raw) => {
   return transformFormatterMap[keyword](transformerValue, keyword, raw)
 }
 
-const splitParams = (transformers = '') =>
-  transformers
-    .trim()
-    .split('/')
-    .filter((param) => !!param)
+const getwatermarkParam = (transformer) => {
+  const transformersRegexStr = Object.keys(transformFormatterMap).join('|\\/')
+
+  const transformerRegex = new RegExp(
+    `watermark:(.*?)(?=\\/${transformersRegexStr}|$)`
+  )
+
+  const watermarkMatches = transformer.match(transformerRegex)
+  if (!watermarkMatches) {
+    throw new HttpException(
+      422,
+      'unexpected watermark format, it must be similar to "watermark:https://cdn.com/my-watermark"'
+    )
+  }
+  return watermarkMatches[0]
+}
+
+const splitParams = (transformers = '') => {
+  let transformersTrimmed = transformers.trim()
+  let params = []
+  if (transformers.includes('watermark')) {
+    const watermarkParam = getwatermarkParam(transformersTrimmed)
+    params.push(watermarkParam)
+    transformersTrimmed = transformersTrimmed.replace(watermarkParam, '')
+  }
+  const othersParams = transformersTrimmed.split('/').filter((param) => !!param)
+  return [...params, ...othersParams]
+}
 
 const splitToObject = (transformers) => {
   const parsedTransformers = splitParams(transformers).reduce(
@@ -59,6 +84,7 @@ const formatFromParams = (transformersString) => {
   return transformersObject
 }
 
+// TODO: Set manually order of all transformer
 const getTransformersPipeline = (transformersString) => {
   let keyWords = splitParams(transformersString).map((param) => {
     const [keyword] = param.split(':')
@@ -78,7 +104,7 @@ const getTransformersPipeline = (transformersString) => {
     const othersTransformers = keyWords.filter(
       (keyword) => !['radius'].includes(keyword)
     )
-    // radius needs to run last!
+
     keyWords = [...othersTransformers, 'radius']
   }
 

@@ -1,10 +1,18 @@
 import HttpException from '#src/domain/exceptions/HttpException'
+import downloadImageBuffer from '#src/utils/request/downloadImageBuffer'
+import { isEmpty, isNil, isNotNil } from 'ramda'
 import sharp from 'sharp'
-import sharpSmartCrop from 'smartcrop-sharp'
 
 export class ImageTransform {
   /** @type {sharp.Sharp} */
   sharpChain = null
+  promises = []
+
+  /** @type {sharp.Metadata | null} */
+  rawImageMetadata = null
+
+  /** @type {sharp.Metadata | null} */
+  imageMetadata = null
 
   constructor(imageBuffer) {
     this.sharpChain = sharp(imageBuffer)
@@ -97,17 +105,76 @@ export class ImageTransform {
 
   execute = async () => {
     await this.promises.reduce((p, fn) => p.then(fn), Promise.resolve())
+    this.imageMetadata = (await this.bufferWithMetadata()).info
     return
   }
 
   pipe = (...args) => this.sharpChain.pipe(...args)
 
+  watermark = async (transformers) => {
+    const watermarkSource = transformers?.watermark?.source
+    const opacity = isNil(transformers?.watermark?.opacity)
+      ? 1
+      : transformers?.watermark?.opacity
+
+    const watermarkSharp = sharp(
+      await downloadImageBuffer(watermarkSource)
+    ).composite([
+      {
+        input: Buffer.from([255, 255, 255, 255 * opacity]),
+        raw: {
+          width: 1,
+          height: 1,
+          channels: 4,
+        },
+        tile: true,
+        blend: 'dest-in',
+      },
+    ])
+
+    const hasSizes =
+      transformers?.watermark?.size?.width ||
+      transformers?.watermark?.size?.height
+
+    let width, height
+
+    if (hasSizes) {
+      width = transformers?.watermark?.size?.width
+      height = transformers?.watermark?.size?.height
+    } else {
+      const sizePercent = transformers?.watermark?.size?.percent || 0.5
+      width = this.imageMetadata.width * sizePercent
+      height = this.imageMetadata.height * sizePercent
+    }
+
+    watermarkSharp.resize(width, height, {
+      fit: 'cover',
+      position: 'centre',
+    })
+
+    const watterarkBuffer = await watermarkSharp.toBuffer()
+
+    this.sharpChain.composite([
+      {
+        input: watterarkBuffer,
+        gravity: transformers?.watermark?.position || 'centre',
+      },
+    ])
+  }
+
   bufferWithMetadata = () =>
     this.sharpChain.toBuffer({ resolveWithObject: true })
+
+  setRawImageMetadata = async () => {
+    const rawImageMetadata = (await this.bufferWithMetadata()).info
+    this.rawImageMetadata = rawImageMetadata
+  }
 }
 
-function imageTransformFactory(imageBuffer) {
-  return new ImageTransform(imageBuffer)
+async function imageTransformFactory(imageBuffer) {
+  const imageTransform = new ImageTransform(imageBuffer)
+  await imageTransform.setRawImageMetadata()
+  return imageTransform
 }
 
 export default imageTransformFactory
