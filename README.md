@@ -5,11 +5,11 @@
 [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=flat-squeare&logo=telegram&logoColor=white)](https://t.me/comunidadevoidr/1)
 [![Twitter Follow](https://img.shields.io/twitter/follow/Voidr_co?style=social)](https://twitter.com/Voidr_co)
 
-# Voidr
+# Voidr Images
 
-Voidr is a robust and scalable platform for image optimization and resizing, specifically designed for developers. With our intuitive and flexible API, you can improve the loading performance of your applications in minutes by delivering optimized images in cutting-edge formats.
+Voidr Images is a robust and scalable platform for image optimization and resizing, specifically designed for developers. With our intuitive and flexible API, you can improve the loading performance of your applications in minutes by delivering optimized images in cutting-edge formats.
 
-[![Voidr Code Example](https://img.voidr.co/voidr/compress:100/convert:webp/fetch/https://api.voidr.co/v1/images/raw/voidr/code-example-clean.png)](https://voidr-images-en.readme.io/reference/intro)
+[![Voidr Images Code Example](https://img.voidr.co/voidr/compress:100/convert:webp/fetch/https://api.voidr.co/v1/images/raw/voidr/code-example-clean.png)](https://voidr-images-en.readme.io/reference/intro)
 
 ## Features
 
