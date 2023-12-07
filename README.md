@@ -1,3 +1,9 @@
+# Voidr Images API Repository
+
+The Voidr Images API Repository, built with Node.js and Express, is a key part of the Voidr Images platform. It provides essential APIs for frontend features and a main endpoint for efficient image optimization and transformation. This repository is ideal for developers seeking robust, scalable image processing capabilities, ensuring seamless integration and optimized image delivery for enhanced application performance.
+
+📚 For more details, see the [official docs](https://voidr-images-en.readme.io/reference/intro)
+
 # [![Voidr Images](https://img.voidr.co/voidr/compress:100/convert:webp/fetch/https://api.voidr.co/v1/images/raw/voidr/voidr-banner-en_1701195001454.png)](https://voidr.co/images)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
